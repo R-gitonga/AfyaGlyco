@@ -1,0 +1,16 @@
+{
+  "name": "afyaglyco",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./app/static/src/input.css -o ./app/static/css/output.css",
+    "build:css:watch": "tailwindcss -i ./app/static/src/input.css -o ./app/static/css/output.css --watch"
+  },
+  "dependencies": {
+    "chart.js": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "latest",
+    "tailwindcss": "latest"
+  }
+}
+
