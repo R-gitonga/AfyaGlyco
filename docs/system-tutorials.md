@@ -10,6 +10,10 @@ The diagrams use Mermaid flowchart syntax. They should be readable in Markdown t
 
 The system shown here is theoretical. It is designed for an academic capstone demonstration using fictional or seeded records.
 
+Sprint 01 implements the core records for the first vertical slice: users, roles, patient profiles, clinician assignment, glucose readings, and clinician-authored notes. Meal, exercise, medication, reminder, audit, and report records remain planned work.
+
+Sprint 02 implements session-based authentication, CSRF-protected sign-in and sign-out, fictional demo-account seeding, and server-side role protection for patient, clinician, and administrator areas. The role dashboards are intentionally small placeholders until the related workflows are implemented.
+
 ## How to read the model
 
 - A user action starts a flow.
@@ -43,9 +47,29 @@ flowchart LR
     Charts --> UI
 ```
 
+## 1a. Authentication and role protection
+
+Every role signs in through the same form. Flask-Login creates the session, and each protected route checks the user's active status and role on the server. The interface does not rely on hidden links as authorization.
+
+```mermaid
+flowchart LR
+    Browser[Browser] --> Login[Sign-in form]
+    Login --> Validate[Validate submitted credentials]
+    Validate --> UserStore[(Users and role assignments)]
+    UserStore -->|Valid active account| Session[Authenticated session]
+    UserStore -->|Invalid or inactive account| Error[Generic sign-in error]
+    Session --> RoleCheck{Role check on protected route}
+    RoleCheck -->|Patient| PatientDashboard[Patient dashboard]
+    RoleCheck -->|Clinician| ClinicianDashboard[Clinician dashboard]
+    RoleCheck -->|Administrator| AdminDashboard[Administrator dashboard]
+    RoleCheck -->|Missing role| Forbidden[403 forbidden response]
+```
+
 ## 2. Patient data-flow tutorial
 
 This is the primary student demonstration flow. It shows how a patient creates a record and later sees it in a dashboard.
+
+The glucose-reading branch is implemented in Sprint 03. A signed-in patient opens the responsive patient dashboard, submits a value, timestamp, and optional context, and can then view the entry in the dashboard, history, and detail pages. Every patient query is filtered by the signed-in user's patient profile; attempting to open another patient's reading returns a not-found response. The other self-monitoring branches remain planned work.
 
 ```mermaid
 flowchart TD
@@ -81,12 +105,15 @@ flowchart TD
 
 The clinician does not receive every record as a separate task. The prototype presents patient history, trends, and clinician-authored notes for review.
 
+The assigned-patient review branch is implemented in Sprint 04. The clinician dashboard lists only patient profiles whose `assigned_clinician_id` matches the signed-in clinician. The review page retrieves readings and notes only after that assignment check succeeds. A clinician-authored note is stored and then displayed on the patient's dashboard.
+
 ```mermaid
 flowchart LR
     Clinician[Clinician signs in]
     Auth[Flask authentication and role check]
     List[Assigned patient list]
     Select[Select a patient]
+    Assignment{Assigned to this clinician?}
     Records[Retrieve authorized records]
     Trend[Build simple trend summary]
     Review[Clinician reviews entries]
@@ -94,7 +121,9 @@ flowchart LR
     Store[(PostgreSQL)]
     PatientView[Patient can see clinician feedback]
 
-    Clinician --> Auth --> List --> Select --> Records
+    Clinician --> Auth --> List --> Select --> Assignment
+    Assignment -->|Yes| Records
+    Assignment -->|No| Denied[Return not found response]
     Records --> Trend --> Review
     Records --> Review
     Review --> Note --> Store
@@ -105,16 +134,16 @@ The feedback is authored by the clinician. The system stores and displays it; it
 
 ## 4. Administrator flow
 
-The administrator controls demonstration accounts and access. This flow is intentionally small so that the capstone can show role management without becoming a complete enterprise administration system.
+The administrator controls fictional demonstration-account status and reviews role assignments. This flow is intentionally small so that the capstone can show account management without becoming a complete enterprise administration system. Sprint 05 implements the user list and activation/deactivation of other demo accounts; the administrator cannot deactivate its own account.
 
 ```mermaid
 flowchart TD
     Admin[Administrator signs in] --> Auth[Verify administrator role]
     Auth --> Dashboard[Open administration dashboard]
     Dashboard --> Users[View users]
-    Dashboard --> Roles[Assign or review roles]
-    Dashboard --> Status[Activate or deactivate a demo account]
-    Dashboard --> Seed[Load or reset fictional demonstration data]
+    Dashboard --> Roles[Review displayed roles]
+    Dashboard --> Status[Activate or deactivate another demo account]
+    Dashboard --> Seed[Run fictional seed command when preparing a demo]
     Users --> Save[(PostgreSQL)]
     Roles --> Save
     Status --> Save
@@ -129,6 +158,9 @@ This diagram describes the expected separation of responsibilities in the Flask 
 flowchart TB
     Browser[Browser]
     Routes[Flask routes and blueprints\nReceive requests and choose responses]
+    PatientRoutes[Patient blueprint\nDashboard and reading routes]
+    ClinicianRoutes[Clinician blueprint\nAssigned review and note routes]
+    AdminRoutes[Admin blueprint\nUser status routes]
     Auth[Authentication and authorization\nIdentity, sessions, role checks]
     Forms[Forms and validation\nReject incomplete or invalid input]
     Services[Application services\nCoordinate use cases]
@@ -139,7 +171,16 @@ flowchart TB
     Static[Tailwind CSS and Chart.js assets]
 
     Browser --> Routes
+    Routes --> PatientRoutes
+    Routes --> ClinicianRoutes
+    Routes --> AdminRoutes
     Routes --> Auth
+    PatientRoutes --> Auth
+    ClinicianRoutes --> Auth
+    AdminRoutes --> Auth
+    PatientRoutes --> Forms
+    ClinicianRoutes --> Forms
+    AdminRoutes --> Forms
     Routes --> Forms
     Routes --> Services
     Services --> Models
@@ -159,6 +200,7 @@ erDiagram
     USER ||--o| PATIENT_PROFILE : has
     USER ||--o{ ROLE_ASSIGNMENT : receives
     ROLE ||--o{ ROLE_ASSIGNMENT : defines
+    USER ||--o{ PATIENT_PROFILE : supervises
     PATIENT_PROFILE ||--o{ GLUCOSE_READING : records
     PATIENT_PROFILE ||--o{ MEAL_LOG : records
     PATIENT_PROFILE ||--o{ EXERCISE_LOG : records
@@ -183,8 +225,10 @@ erDiagram
     PATIENT_PROFILE {
         int id PK
         int user_id FK
+        int assigned_clinician_id FK
         string display_name
         date date_of_birth_demo
+        datetime created_at
     }
     GLUCOSE_READING {
         int id PK
@@ -225,6 +269,8 @@ erDiagram
 
 The field names above are conceptual. They may change during implementation, but the ownership and authorization relationships should remain explicit.
 
+The current implementation uses one optional assigned clinician per patient profile for the first MVP. The patient profile still belongs to its patient user; the clinician relationship is used to limit review access.
+
 ## 7. Student demonstration tutorial
 
 ### Prepare the demonstration
@@ -232,17 +278,17 @@ The field names above are conceptual. They may change during implementation, but
 1. Start the Flask application.
 2. Connect the application to a local PostgreSQL database.
 3. Run database migrations.
-4. Load deterministic fictional seed data.
+4. Run `flask --app run:app seed-demo --password "choose-a-local-demo-password"` to prepare fictional accounts.
 5. Open the application in a browser.
 
 ### Demonstrate the patient role
 
 1. Sign in with the seeded patient account.
 2. Open the patient dashboard.
-3. Add one glucose reading, meal, exercise record, and medication event.
+3. Add one or more fictional glucose readings.
 4. Return to the dashboard.
 5. Show the new entries and updated chart.
-6. Open the feedback area and show any existing clinician note.
+6. Sign out after confirming the reading history.
 
 ### Demonstrate the clinician role
 
@@ -250,16 +296,16 @@ The field names above are conceptual. They may change during implementation, but
 2. Open the assigned patient list.
 3. Select the demonstration patient.
 4. Review the patient's entries and trend summary.
-5. Add a clearly labelled follow-up note.
-6. Sign back in as the patient and show the note.
+5. Add a clearly labelled clinician-authored follow-up note.
+6. Sign back in as the patient and show the stored note.
 
 ### Demonstrate the administrator role
 
 1. Sign in with the seeded administrator account.
 2. View the user list.
 3. Show role assignments.
-4. Activate, deactivate, or update a fictional account.
-5. Explain that administrator actions are restricted from the patient and clinician views.
+4. Activate or deactivate another fictional account.
+5. Explain that administrator actions are restricted from the patient and clinician views, and that self-deactivation is prevented.
 
 ## 8. Design-change checklist
 
@@ -288,4 +334,9 @@ For each significant change:
 | Date | Change | Affected diagrams or sections | Reason |
 | --- | --- | --- | --- |
 | 2026-11-05 | Created the theoretical capstone system model | All sections | Establish the initial design baseline |
+| 2026-11-06 | Implemented the core MVP schema for users, roles, patient profiles, clinician assignment, glucose readings, and clinician notes | Sections 1, 3, 5, and 6 | Establish the data foundation for the patient-to-clinician demonstration loop |
+| 2026-11-06 | Added session authentication, CSRF protection, fictional demo-account seeding, and server-side role-protected dashboards | Sections 1, 1a, 2, 3, 4, and 5 | Establish the access boundary for the patient, clinician, and administrator workflows |
+| 2026-11-06 | Added the patient glucose-reading workflow with responsive entry, history, detail, summary, and ownership checks | Sections 2, 5, and 6 | Establish the first patient data-entry slice while preserving record ownership boundaries |
+| 2026-11-06 | Added assigned-clinician review, reading display, clinician-authored notes, patient feedback display, and assignment checks | Sections 3, 5, and 6 | Complete the first patient-to-clinician review loop while preserving the authorization boundary |
+| 2026-11-06 | Added administrator user listing, role/status display, account activation/deactivation, self-lockout protection, and responsive role navigation | Sections 4 and 5 | Make the fictional demonstration manageable and ready for a supervised board walkthrough |
 

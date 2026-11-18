@@ -2,6 +2,18 @@
 
 This folder contains the planning notes, decisions, progress updates, and review notes for each development sprint.
 
+## MVP roadmap
+
+| Sprint | Focus | Demonstrable outcome |
+| --- | --- | --- |
+| 01 | Application foundation | Core schema for users, roles, patient profiles, clinician assignment, readings, and notes |
+| 02 | Authentication and access control | Fictional seeded accounts can sign in and reach only their role-appropriate areas |
+| 03 | Patient workflow | A patient can add and review glucose readings on a responsive dashboard with a simple trend |
+| 04 | Clinician workflow | An assigned clinician can review a patient and add a note that the patient can see |
+| 05 | Administrator and presentation readiness | Demo-user status management, responsive polish, prototype safety messaging, seed preparation, and rehearsal |
+
+Meal, exercise, medication, reminder, report, and external-integration features are post-MVP extensions. Every sprint must preserve the mobile-responsive requirement in `agents.md`.
+
 ## Sprint naming
 
 Use one Markdown file per sprint:

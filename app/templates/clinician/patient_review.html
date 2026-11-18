@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Review patient · AfyaGlyco{% endblock %}
+
+{% block content %}
+  <div class="mb-8">
+    <a class="text-sm font-semibold text-blue-700 hover:text-blue-900" href="{{ url_for('clinician.dashboard') }}">← Back to clinician dashboard</a>
+    <div class="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">Assigned patient review</p>
+        <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">{{ patient.display_name }}</h1>
+        <p class="mt-3 text-sm leading-6 text-slate-600">Review recorded demo entries and add a clinician-authored note.</p>
+      </div>
+      <span class="w-fit rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">Assignment verified</span>
+    </div>
+  </div>
+
+  <div class="grid gap-4 lg:grid-cols-5">
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-3 sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-semibold text-slate-950">Recorded values</h2>
+          <p class="mt-1 text-sm text-slate-600">Values are shown as entered by the patient, without clinical interpretation.</p>
+        </div>
+        <span class="text-sm text-slate-500">{{ readings|length }} total</span>
+      </div>
+
+      {% if readings %}
+        <div class="mt-5 space-y-3">
+          {% for reading in readings %}
+            <div class="rounded-xl border border-slate-200 p-4">
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <span class="text-lg font-semibold text-slate-950">{{ reading.value_demo|float|round(2) }}</span>
+                <time class="text-sm text-slate-500" datetime="{{ reading.recorded_at.isoformat() }}">{{ reading.recorded_at.strftime('%d %b %Y, %H:%M') }}</time>
+              </div>
+              <p class="mt-1 text-sm text-slate-600">{{ reading.reading_context or 'No context added' }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+          <h3 class="font-semibold text-slate-950">No recorded values yet</h3>
+          <p class="mt-2 text-sm text-slate-600">The patient has not added a fictional entry.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2 sm:p-6">
+      <h2 class="font-semibold text-slate-950">Add feedback</h2>
+      <p class="mt-1 text-sm leading-6 text-slate-600">This note is stored under your clinician account and shown to the patient.</p>
+      <form class="mt-5 space-y-4" method="post" action="{{ url_for('clinician.add_note', patient_id=patient.id) }}">
+        {{ form.hidden_tag() }}
+        <div>
+          {{ form.note.label(class="mb-2 block text-sm font-medium text-slate-700") }}
+          {{ form.note(class="min-h-36 w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none ring-blue-500 focus:ring-2", maxlength="2000", placeholder="Write a factual follow-up note for this demonstration.") }}
+          {% for error in form.note.errors %}<p class="mt-1 text-sm text-rose-700">{{ error }}</p>{% endfor %}
+        </div>
+        {{ form.submit(class="min-h-11 w-full rounded-lg bg-blue-700 px-4 py-3 text-base font-semibold text-white hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2") }}
+      </form>
+    </section>
+  </div>
+
+  <section class="mt-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+    <h2 class="font-semibold text-slate-950">Previous clinician notes</h2>
+    {% if notes %}
+      <div class="mt-5 space-y-3">
+        {% for note in notes %}
+          <article class="rounded-xl border border-slate-200 p-4">
+            <div class="flex flex-wrap justify-between gap-2 text-sm">
+              <span class="font-medium text-slate-700">{{ note.author.email }}</span>
+              <time class="text-slate-500" datetime="{{ note.created_at.isoformat() }}">{{ note.created_at.strftime('%d %b %Y, %H:%M') }}</time>
+            </div>
+            <p class="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-700">{{ note.note }}</p>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="mt-3 text-sm text-slate-600">No clinician-authored notes have been added yet.</p>
+    {% endif %}
+  </section>
+
+  <p class="mt-4 rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">This is an academic prototype. Notes are stored and displayed; the system does not generate medical advice or treatment instructions.</p>
+{% endblock %}

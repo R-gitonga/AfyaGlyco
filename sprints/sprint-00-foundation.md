@@ -25,11 +25,11 @@ Prepare the development environment and establish the initial project design for
 - Tailwind CSS built successfully.
 - npm audit reported no high-severity vulnerabilities.
 - The health-check test passed.
-- The application reached PostgreSQL during the migration attempt; credential configuration still needs to be corrected in `.env`.
+- The corrected `.env` credentials were verified against PostgreSQL, and the committed migrations applied successfully.
 
-## Open issue
+## Resolved issue
 
-The PostgreSQL server is reachable, but authentication for the configured `postgres` user is currently failing. Confirm the PostgreSQL role password and update the URL-encoded password in `.env` before continuing with database migrations.
+The PostgreSQL role password in `.env` was corrected. The application can now connect to the local server and apply the initial and core-domain migrations.
 
 ## Next sprint candidate
 

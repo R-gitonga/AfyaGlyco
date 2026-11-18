@@ -101,6 +101,9 @@ Use foreign keys, timestamps, and clear ownership relationships. Avoid premature
 
 - Make the patient workflow fast and low-friction.
 - Use responsive layouts with Tailwind CSS.
+- Build every feature mobile-first and keep it responsive at all times. Verify new pages at narrow phone widths before considering the feature complete.
+- Avoid horizontal scrolling in normal workflows; make forms, navigation, cards, tables, charts, and validation messages usable on small screens.
+- Use touch-friendly controls and responsive layouts that scale up to tablet and desktop widths without creating a separate mobile-only implementation.
 - Keep navigation role-specific and obvious.
 - Display empty states when a user has no records.
 - Show validation errors next to the relevant fields.
@@ -126,6 +129,7 @@ Tests should use isolated test data and must not depend on a developer's persona
 ## Documentation expectations
 
 Update `README.md` when the implemented scope changes. Document setup, environment variables, database initialization, migrations, seed commands, test commands, and the capstone demonstration flow once those commands exist.
+Maintain the README's application-route inventory as the project progresses. Whenever an application route is added, changed, or removed, update its method, path, purpose, and access level in the same change.
 
 Maintain `docs/system-tutorials.md` as a living tutorial and system-design reference. It must contain the current user walkthroughs and Mermaid flowcharts for the main data flows, user roles, application interconnections, and conceptual records.
 

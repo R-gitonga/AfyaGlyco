@@ -79,14 +79,15 @@ The first version should focus on a small, complete, demonstrable workflow rathe
 
 The primary demonstration should follow this sequence:
 
-1. An administrator creates or activates a clinician and patient account.
-2. The patient signs in and records several fictional readings, meals, exercises, and medication events.
-3. The patient dashboard displays recent entries and simple trends.
-4. The clinician signs in and reviews the patient's history.
-5. The clinician adds a feedback note or follow-up recommendation.
-6. The administrator reviews users and roles.
+1. Run the seed command to prepare fictional patient, clinician, and administrator accounts.
+2. The patient signs in and records several fictional glucose readings.
+3. The patient dashboard displays recent entries and a simple recorded-value summary.
+4. The assigned clinician signs in and reviews the patient's readings.
+5. The clinician adds a clinician-authored feedback note.
+6. The patient signs in again and sees the stored feedback.
+7. The administrator reviews users and activates or deactivates another fictional account.
 
-This scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration.
+This MVP scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Meal, exercise, medication, reminder, and reporting workflows remain post-MVP extensions.
 
 ## Technology stack
 
@@ -106,6 +107,29 @@ The project also includes a local Python virtual environment workflow and an npm
 Flask will provide the web application and request handling. Jinja templates will render server-side pages. PostgreSQL will store the application records. Tailwind CSS will provide responsive styling, and Chart.js will display simple trends.
 
 The project does not require React, Vue, Laravel, Livewire, or a separate mobile application for the capstone prototype.
+
+## Application routes
+
+This is the living route inventory. Update it whenever an application route is added, changed, or removed. Framework-generated static-file routes are not listed here.
+
+| Method | Path | Purpose | Access |
+| --- | --- | --- | --- |
+| GET | `/` | Redirect to sign-in or the signed-in user's role dashboard | Public / authenticated |
+| GET | `/health` | Confirm that the AfyaGlyco service is running | Public |
+| GET | `/auth/login` | Display the sign-in form | Public |
+| POST | `/auth/login` | Authenticate a fictional user and start a session | Public |
+| POST | `/auth/logout` | End the current session | Authenticated |
+| GET | `/dashboard` | Redirect to the current user's role dashboard | Authenticated |
+| GET | `/patient` | Display the patient landing dashboard | Patient role |
+| GET | `/patient/readings/new` | Display the patient reading-entry form | Patient role |
+| POST | `/patient/readings` | Validate and store a reading for the signed-in patient | Patient role |
+| GET | `/patient/readings` | Display the signed-in patient's reading history | Patient role |
+| GET | `/patient/readings/<reading_id>` | Display one reading when it belongs to the signed-in patient | Patient role |
+| GET | `/clinician` | Display patients assigned to the signed-in clinician | Clinician role |
+| GET | `/clinician/patients/<patient_id>` | Review readings and notes for an assigned patient | Assigned clinician |
+| POST | `/clinician/patients/<patient_id>/notes` | Store a clinician-authored note for an assigned patient | Assigned clinician |
+| GET | `/admin` | Display fictional users, roles, and account statuses | Administrator role |
+| POST | `/admin/users/<user_id>/status` | Activate or deactivate another fictional account | Administrator role |
 
 ## Suggested application areas
 
@@ -151,7 +175,7 @@ The interface should clearly identify the application as an academic prototype. 
 
 ## Project status
 
-Project documentation, the initial Flask scaffold, the migration repository, dependency manifests, and environment setup are in place. Feature modules and the domain data model are the next implementation steps.
+Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, assigned-clinician review workflow, and basic administrator status management are in place. Meal, exercise, medication, and broader reporting features remain post-MVP extensions.
 
 ## Project documentation
 
@@ -198,7 +222,19 @@ Example format:
 DATABASE_URL=postgresql+psycopg://username:password@localhost:5432/diabetes_self_monitoring
 ```
 
-### 4. Run the application
+### 4. First-time demo account setup
+
+There is no public registration page yet. The first-time setup creates fictional patient, clinician, and administrator accounts through the seed command. Set `DEMO_SEED_PASSWORD` in the local `.env`, or pass `--password`; if neither is provided for new accounts, the command generates and prints a random password.
+
+```powershell
+flask --app run:app seed-demo --password "choose-a-local-demo-password"
+```
+
+The command creates `patient@example.test`, `clinician@example.test`, and `admin@example.test`. After starting the app, open `http://127.0.0.1:5000/auth/login` and sign in with one of those fictional accounts.
+
+Do not commit the password or place real personal information in the seed data.
+
+### 5. Run the application
 
 ```powershell
 flask --app run:app run --debug
@@ -212,4 +248,10 @@ flask --app run:app db upgrade
 ```
 
 The application will also apply the committed migration automatically the next time it starts.
+
+### 6. Run tests
+
+```powershell
+.venv\Scripts\python.exe -m pytest -q
+```
 
