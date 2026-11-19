@@ -23,6 +23,8 @@ from app.patient.forms import (
     MealLogForm,
     MedicationEventForm,
 )
+from app.reporting import build_patient_report
+from app.reporting_forms import ReportFilterForm
 
 
 patient_bp = Blueprint("patient", __name__, url_prefix="/patient")
@@ -81,6 +83,7 @@ def dashboard():
             .order_by(GlucoseReading.recorded_at.desc())
         )
     )
+
     meals = list(
         db.session.scalars(
             select(MealLog)
@@ -126,6 +129,33 @@ def dashboard():
         reminder_count=len(reminders),
         medication_event_count=len(medication_events),
     )
+
+
+@patient_bp.get("/reports")
+@role_required("patient")
+def report_summary():
+    profile = _current_profile()
+    if not can_perform(
+        current_user, "patient_report", "read", patient_profile=profile
+    ):
+        abort(404)
+    form = ReportFilterForm(request.args)
+    report = None
+    status_code = 200
+    if form.validate():
+        report = build_patient_report(
+            profile,
+            start_date=form.start_date.data,
+            end_date=form.end_date.data,
+        )
+    elif request.args:
+        status_code = 400
+    return render_template(
+        "patient/report.html",
+        profile=profile,
+        form=form,
+        report=report,
+    ), status_code
 
 
 @patient_bp.get("/readings/new")

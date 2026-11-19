@@ -51,6 +51,12 @@ def test_business_rules_expose_medication_crud_matrix():
     assert allowed_operations("medication_event", "clinician") == {"read"}
 
 
+def test_business_rules_keep_reports_read_only():
+    assert allowed_operations("patient_report", "patient") == {"read"}
+    assert allowed_operations("patient_report", "clinician") == {"read"}
+    assert allowed_operations("patient_report", "administrator") == set()
+
+
 def test_business_rules_enforce_patient_ownership_and_clinician_assignment():
     patient = user(1, "patient")
     clinician = user(2, "clinician")

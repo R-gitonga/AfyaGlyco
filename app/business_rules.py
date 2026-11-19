@@ -33,6 +33,8 @@ MEDICATION_EVENT_STATUS_CHOICES = (
 MEDICATION_EVENT_STATUSES = frozenset(
     value for value, _label in MEDICATION_EVENT_STATUS_CHOICES
 )
+REPORT_DATE_FORMAT = "%Y-%m-%d"
+REPORT_MAX_DATE_RANGE_DAYS = 366
 
 
 RESOURCE_PERMISSIONS = {
@@ -66,6 +68,10 @@ RESOURCE_PERMISSIONS = {
     },
     "medication_event": {
         "patient": CRUD_OPERATIONS,
+        "clinician": frozenset({"read"}),
+    },
+    "patient_report": {
+        "patient": frozenset({"read"}),
         "clinician": frozenset({"read"}),
     },
 }

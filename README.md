@@ -88,8 +88,10 @@ The primary demonstration should follow this sequence:
 7. The clinician configures a fictional medication reminder for the assigned patient.
 8. The patient signs in again, views the reminder, and records a medication event.
 9. The clinician reviews the patient-entered medication event without mutation controls.
-10. The patient sees the stored feedback.
-11. The administrator reviews users and activates or deactivates another fictional account.
+10. The patient opens the read-only report and reviews transparent counts and recorded-value trends.
+11. The clinician opens the assigned patient's read-only report.
+12. The patient sees the stored feedback.
+13. The administrator reviews users and activates or deactivates another fictional account.
 
 This scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Medication reminders and events are fictional records displayed within the application; the system does not prescribe, interpret adherence, or send notifications.
 
@@ -151,8 +153,10 @@ This is the living route inventory. Update it whenever an application route is a
 | GET | `/patient/medication-events/<event_id>` | Display one medication event owned by the signed-in patient | Patient role |
 | GET, POST | `/patient/medication-events/<event_id>/edit` | Display and process edits for the signed-in patient's medication event | Patient role |
 | POST | `/patient/medication-events/<event_id>/delete` | Delete the signed-in patient's medication event after CSRF validation | Patient role |
+| GET | `/patient/reports` | Display a read-only summary of the signed-in patient's authorized fictional records | Patient role |
 | GET | `/clinician` | Display patients assigned to the signed-in clinician | Clinician role |
 | GET | `/clinician/patients/<patient_id>` | Review assigned-patient records, reminders, events, and notes | Assigned clinician |
+| GET | `/clinician/patients/<patient_id>/reports` | Display a read-only summary of an assigned patient's authorized fictional records | Assigned clinician |
 | POST | `/clinician/patients/<patient_id>/notes` | Store a clinician-authored note for an assigned patient | Assigned clinician |
 | GET | `/clinician/patients/<patient_id>/reminders/new` | Display the reminder form for an assigned patient | Assigned clinician |
 | POST | `/clinician/patients/<patient_id>/reminders` | Create a fictional reminder for an assigned patient | Assigned clinician |
@@ -207,7 +211,7 @@ The interface should clearly identify the application as an academic prototype. 
 
 ## Project status
 
-Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, meal and exercise CRUD workflows, assigned-clinician review workflow, medication reminder/event workflow, and basic administrator status management are in place. Broader reporting remains a later extension.
+Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, meal and exercise CRUD workflows, assigned-clinician review workflow, medication reminder/event workflow, read-only patient and clinician reports, and basic administrator status management are in place. Exporting and broader analytics remain later extensions.
 
 ## Project documentation
 

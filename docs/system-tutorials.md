@@ -18,6 +18,8 @@ Sprint 06 implements the central business-rules contract and complete patient CR
 
 Sprint 07 implements the safe medication-reminder and medication-event workflow. Assigned clinicians can fully manage fictional reminders for their assigned patients. Patients can view their configured reminders and fully manage their own patient-entered medication events. Assigned clinicians can read those events, but the system does not infer adherence, recommend treatment, or send notifications.
 
+Sprint 08 implements read-only derived reports for patients and assigned clinicians. The reports aggregate already-authorized fictional records, offer an optional validated date range, and show transparent counts and a recorded-value trend. Reports are not stored records and have no create, update, or delete operations.
+
 ## How to read the model
 
 - A user action starts a flow.
@@ -80,6 +82,8 @@ The meal and exercise branches are implemented in Sprint 06. A patient can creat
 
 The medication branch is implemented in Sprint 07. An assigned clinician creates a fictional medication label and schedule description for a patient. The patient can read that reminder and can create, view, edit, or delete an event with a controlled status, timestamp, and optional context. The event is only the patient's recorded input; it is not converted into an adherence score or clinical conclusion.
 
+The reporting branch is implemented in Sprint 08. A patient can open a read-only summary of their own records, and an assigned clinician can open the corresponding summary for that patient. Both pages can accept a start and end date, but the report only counts and displays the records that the current role is already permitted to read. Empty periods are presented as empty data, not as a health conclusion.
+
 ```mermaid
 flowchart TD
     Start([Patient opens the platform]) --> Login{Authenticated?}
@@ -96,6 +100,9 @@ flowchart TD
     Choose --> Meal[Log a meal]
     Choose --> Exercise[Log exercise]
     Choose --> Medication[Record medication event or view reminder]
+    Choose --> Report[View read-only report]
+    Report --> ReportFilters[Validate optional date range]
+    ReportFilters --> ReportSummary[Display authorized read-only summary]
 
     Glucose --> Form[Validate submitted form]
     Meal --> Form
@@ -116,7 +123,7 @@ For medication records, the authorized record step is split by ownership: the cl
 
 The clinician does not receive every record as a separate task. The prototype presents patient history, trends, and clinician-authored notes for review.
 
-The assigned-patient review branch is implemented in Sprint 04 and extended in Sprint 07. The clinician dashboard lists only patient profiles whose `assigned_clinician_id` matches the signed-in clinician. The review page retrieves readings, meal and exercise records, reminders, medication events, and notes only after that assignment check succeeds. A clinician-authored note is stored and then displayed on the patient's dashboard.
+The assigned-patient review branch is implemented in Sprint 04 and extended in Sprints 07 and 08. The clinician dashboard lists only patient profiles whose `assigned_clinician_id` matches the signed-in clinician. The review page retrieves readings, meal and exercise records, reminders, medication events, and notes only after that assignment check succeeds. The clinician can open a derived report for the same assigned patient; the report is read-only and uses the same assignment boundary. A clinician-authored note is stored and then displayed on the patient's dashboard.
 
 ```mermaid
 flowchart LR
@@ -128,6 +135,7 @@ flowchart LR
     Records[Retrieve authorized records]
     Trend[Build simple trend summary]
     Review[Clinician reviews entries]
+    Report[Open read-only report]
     Reminder[Configure fictional reminder]
     Events[Read patient-entered medication events]
     Note[Add feedback or follow-up note]
@@ -141,6 +149,7 @@ flowchart LR
     Records --> Review
     Review --> Reminder --> Store
     Review --> Events
+    Review --> Report
     Review --> Note --> Store
     Store --> PatientView
 ```
@@ -173,11 +182,12 @@ This diagram describes the expected separation of responsibilities in the Flask 
 flowchart TB
     Browser[Browser]
     Routes[Flask routes and blueprints\nReceive requests and choose responses]
-    PatientRoutes[Patient blueprint\nDashboard, self-monitoring, reminder read, and event CRUD routes]
-    ClinicianRoutes[Clinician blueprint\nAssigned review, reminder CRUD, and note routes]
+    PatientRoutes[Patient blueprint\nDashboard, self-monitoring, reminder read, event CRUD, and report routes]
+    ClinicianRoutes[Clinician blueprint\nAssigned review, reminder CRUD, note, and report routes]
     AdminRoutes[Admin blueprint\nUser status routes]
     Auth[Authentication and authorization\nIdentity, sessions, role checks]
     Rules[Business rules\nPermissions, ownership, shared constraints]
+    Reporting[Derived reporting\nAuthorized queries and transparent summaries]
     Forms[Forms and validation\nReject incomplete or invalid input]
     Services[Application services\nCoordinate use cases]
     Models[SQLAlchemy models\nRepresent domain records]
@@ -202,6 +212,10 @@ flowchart TB
     AdminRoutes --> Forms
     Routes --> Forms
     Routes --> Services
+    PatientRoutes --> Reporting
+    ClinicianRoutes --> Reporting
+    Reporting --> Rules
+    Reporting --> Models
     Services --> Models
     Models --> DB
     Migrations --> DB
@@ -310,6 +324,8 @@ The current implementation uses concrete `MealLog` and `ExerciseLog` records. Pa
 
 The current implementation also uses concrete `MedicationReminder` and `MedicationEvent` records. Assigned clinicians have complete CRUD access to reminders for their assigned patients. Patients have read-only access to reminders and complete CRUD access to their own events. Assigned clinicians have read-only access to events, and administrators do not receive medication-record access by default.
 
+Sprint 08 adds no report table. `app/reporting.py` derives a read-only summary from the existing records after the route verifies patient ownership or clinician assignment. Patients and assigned clinicians have read access to the derived report; administrators have no health-summary access by default. The report's create, update, and delete operations are intentionally not applicable.
+
 ## 7. Student demonstration tutorial
 
 ### Prepare the demonstration
@@ -330,6 +346,7 @@ The current implementation also uses concrete `MedicationReminder` and `Medicati
 6. Show the new entries and updated recorded-value summary.
 7. Open a meal or exercise entry, demonstrate edit, then demonstrate delete.
 8. Sign out after confirming the reading, meal, and exercise histories.
+9. Open the patient report, show the all-records summary, then apply a valid date range and show the filtered empty or populated state.
 
 ### Demonstrate the clinician role
 
@@ -340,8 +357,9 @@ The current implementation also uses concrete `MedicationReminder` and `Medicati
 5. Add a clearly labelled clinician-authored follow-up note.
 6. Add a fictional medication reminder for the assigned patient.
 7. Open the patient review page and show the patient's medication-event area is read-only.
-8. Sign back in as the patient, show the reminder, record an event, and demonstrate event edit and delete.
-9. Show the stored clinician note and explain that medication records are displayed without adherence interpretation.
+8. Open the assigned patient's report and show the transparent counts and recorded-value trend.
+9. Sign back in as the patient, show the reminder, record an event, and demonstrate event edit and delete.
+10. Show the stored clinician note and explain that medication records and reports are displayed without adherence interpretation.
 
 ### Demonstrate the administrator role
 
@@ -385,4 +403,5 @@ For each significant change:
 | 2026-11-06 | Added administrator user listing, role/status display, account activation/deactivation, self-lockout protection, and responsive role navigation | Sections 4 and 5 | Make the fictional demonstration manageable and ready for a supervised board walkthrough |
 | 2026-11-18 | Added a central business-rules contract, completed glucose CRUD, and added patient CRUD for meal and exercise records with assigned-clinician read-only review | Sections 1, 2, 3, 5, and 6 | Extend self-monitoring context while preserving explicit ownership and non-clinical prototype boundaries |
 | 2026-11-19 | Added fictional clinician-configured medication reminders, patient medication-event CRUD, assigned-clinician read-only event review, migration, route inventory, and boundary tests | Sections 1, 2, 3, 5, 6, and 7 | Cover the medication-scheduling requirement without adding prescriptions, dosage guidance, adherence inference, or external notifications |
+| 2026-11-19 | Added read-only derived patient and assigned-clinician reports with validated date filters, transparent counts, and recorded-value trends | Sections 1, 2, 3, 5, 6, and 7 | Cover the basic reports and progress-summary scope without persisting duplicate data or introducing clinical interpretation |
 

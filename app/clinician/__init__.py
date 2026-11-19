@@ -19,6 +19,8 @@ from app.models import (
     MedicationReminder,
     PatientProfile,
 )
+from app.reporting import build_patient_report
+from app.reporting_forms import ReportFilterForm
 
 
 clinician_bp = Blueprint("clinician", __name__, url_prefix="/clinician")
@@ -71,6 +73,7 @@ def patient_review(patient_id):
             .order_by(GlucoseReading.recorded_at.desc())
         )
     )
+
     notes = list(
         db.session.scalars(
             select(ClinicianNote)
@@ -118,6 +121,33 @@ def patient_review(patient_id):
         form=ClinicianNoteForm(),
         delete_reminder_forms=_delete_reminder_forms(reminders),
     )
+
+
+@clinician_bp.get("/patients/<int:patient_id>/reports")
+@role_required("clinician")
+def report_summary(patient_id):
+    patient = _assigned_patient(patient_id)
+    if not can_perform(
+        current_user, "patient_report", "read", patient_profile=patient
+    ):
+        abort(404)
+    form = ReportFilterForm(request.args)
+    report = None
+    status_code = 200
+    if form.validate():
+        report = build_patient_report(
+            patient,
+            start_date=form.start_date.data,
+            end_date=form.end_date.data,
+        )
+    elif request.args:
+        status_code = 400
+    return render_template(
+        "clinician/report.html",
+        patient=patient,
+        form=form,
+        report=report,
+    ), status_code
 
 
 @clinician_bp.post("/patients/<int:patient_id>/notes")
