@@ -2,7 +2,7 @@
 
 ## Status
 
-Defined for planning only. No Sprint 07 application code, migration, routes, or route-inventory changes are implemented yet.
+Implemented. The application code, migration, routes, route inventory, tests, CSS build, documentation updates, and narrow-phone browser rehearsal are complete.
 
 ## Sprint goal
 
@@ -107,6 +107,25 @@ Exact paths must be finalized before implementation and added to the README rout
 - Reuse explicit ownership queries and assigned-clinician review boundaries from Sprint 6.
 - Update `docs/system-tutorials.md` in the same change because this sprint adds a new module and changes the patient and clinician data flows.
 
+## Implementation record
+
+- Added the centralized medication permission matrix and field constraints to `app/business_rules.py`.
+- Added `MedicationReminder` and `MedicationEvent` models and migration `d7e3f9a1b2c4`.
+- Added clinician reminder CRUD for assigned patients, patient reminder read pages, and patient medication-event CRUD.
+- Added assigned-clinician read-only medication-event display on the existing review page.
+- Added server-side validation, CSRF-protected mutation forms, responsive empty states, and demonstration-only language.
+- Added focused tests for the CRUD matrix, invalid input, ownership, assignment, and forbidden mutation boundaries.
+- Updated README route inventory and `docs/system-tutorials.md` diagrams and design-change log.
+
+## Verification and carry-over
+
+- Focused medication and business-rule tests: 8 passed.
+- Full suite: 29 passed.
+- Migration upgrade reached head `d7e3f9a1b2c4`.
+- CSS rebuild completed successfully.
+- Clinician review and reminder-form pages were checked at a 412px viewport with no horizontal overflow.
+- External notifications, adherence scoring, dosage guidance, prescription management, and clinical alerts remain out of scope.
+
 ## Review notes and next decision
 
-Before implementation begins, confirm the exact reminder fields and whether clinician-configured reminders are sufficient for the board demonstration. Keep the first slice application-visible and deterministic; defer external delivery mechanisms and advanced reporting to later work.
+The implemented reminder fields are a fictional medication label, schedule description, active status, configuring clinician, and timestamps. This is sufficient for the board demonstration. Keep the first slice application-visible and deterministic; defer external delivery mechanisms and advanced reporting to a later sprint.

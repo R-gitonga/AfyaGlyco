@@ -34,6 +34,23 @@ def test_business_rules_expose_complete_meal_and_exercise_crud_matrix():
     assert allowed_operations("exercise_log", "clinician") == {"read"}
 
 
+def test_business_rules_expose_medication_crud_matrix():
+    assert allowed_operations("medication_reminder", "clinician") == {
+        "create",
+        "read",
+        "update",
+        "delete",
+    }
+    assert allowed_operations("medication_reminder", "patient") == {"read"}
+    assert allowed_operations("medication_event", "patient") == {
+        "create",
+        "read",
+        "update",
+        "delete",
+    }
+    assert allowed_operations("medication_event", "clinician") == {"read"}
+
+
 def test_business_rules_enforce_patient_ownership_and_clinician_assignment():
     patient = user(1, "patient")
     clinician = user(2, "clinician")

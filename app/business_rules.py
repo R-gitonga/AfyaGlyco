@@ -22,6 +22,17 @@ MEAL_DESCRIPTION_MAX_LENGTH = 500
 EXERCISE_ACTIVITY_MAX_LENGTH = 120
 EXERCISE_DURATION_MINUTES_MIN = 1
 EXERCISE_DURATION_MINUTES_MAX = 1440
+MEDICATION_LABEL_MAX_LENGTH = 120
+REMINDER_SCHEDULE_MAX_LENGTH = 240
+MEDICATION_EVENT_CONTEXT_MAX_LENGTH = 500
+MEDICATION_EVENT_STATUS_CHOICES = (
+    ("recorded", "Recorded"),
+    ("skipped", "Skipped"),
+    ("not_recorded", "Not recorded"),
+)
+MEDICATION_EVENT_STATUSES = frozenset(
+    value for value, _label in MEDICATION_EVENT_STATUS_CHOICES
+)
 
 
 RESOURCE_PERMISSIONS = {
@@ -48,6 +59,14 @@ RESOURCE_PERMISSIONS = {
     "clinician_note": {
         "patient": frozenset({"read"}),
         "clinician": frozenset({"create", "read"}),
+    },
+    "medication_reminder": {
+        "patient": frozenset({"read"}),
+        "clinician": CRUD_OPERATIONS,
+    },
+    "medication_event": {
+        "patient": CRUD_OPERATIONS,
+        "clinician": frozenset({"read"}),
     },
 }
 

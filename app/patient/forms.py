@@ -1,7 +1,14 @@
 from datetime import datetime
 
 from flask_wtf import FlaskForm
-from wtforms import DecimalField, IntegerField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import (
+    DecimalField,
+    IntegerField,
+    SelectField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+)
 from wtforms.fields import DateTimeLocalField
 from wtforms.fields.choices import SelectChoice
 from wtforms.validators import DataRequired, InputRequired, Length, NumberRange
@@ -10,6 +17,8 @@ from app.business_rules import (
     EXERCISE_ACTIVITY_MAX_LENGTH,
     EXERCISE_DURATION_MINUTES_MAX,
     EXERCISE_DURATION_MINUTES_MIN,
+    MEDICATION_EVENT_CONTEXT_MAX_LENGTH,
+    MEDICATION_EVENT_STATUS_CHOICES,
     MEAL_DESCRIPTION_MAX_LENGTH,
     MEAL_TYPE_CHOICES,
 )
@@ -83,3 +92,33 @@ class ExerciseLogForm(FlaskForm):
 
 class DeleteRecordForm(FlaskForm):
     submit = SubmitField("Delete record")
+
+
+class MedicationEventForm(FlaskForm):
+    reminder_id = SelectField("Reminder", choices=[])
+    status = SelectField(
+        "Event status",
+        choices=[
+            SelectChoice(value, label)
+            for value, label in MEDICATION_EVENT_STATUS_CHOICES
+        ],
+        validators=[DataRequired()],
+    )
+    recorded_at = DateTimeLocalField(
+        "Date and time recorded",
+        format="%Y-%m-%dT%H:%M",
+        default=lambda: datetime.now().replace(second=0, microsecond=0),
+        validators=[DataRequired()],
+    )
+    context = TextAreaField(
+        "Optional context",
+        validators=[Length(max=MEDICATION_EVENT_CONTEXT_MAX_LENGTH)],
+        description="Record only what you entered; the system does not interpret it.",
+    )
+    submit = SubmitField("Save medication event")
+
+    def set_reminders(self, reminders):
+        self.reminder_id.choices = [("", "No linked reminder")] + [
+            (str(reminder.id), reminder.medication_label_demo)
+            for reminder in reminders
+        ]

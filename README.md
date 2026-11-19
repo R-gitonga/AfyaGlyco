@@ -85,9 +85,13 @@ The primary demonstration should follow this sequence:
 4. The assigned clinician signs in and reviews the patient's readings.
 5. The clinician adds a clinician-authored feedback note.
 6. The patient signs in again and sees the stored feedback.
-7. The administrator reviews users and activates or deactivates another fictional account.
+7. The clinician configures a fictional medication reminder for the assigned patient.
+8. The patient signs in again, views the reminder, and records a medication event.
+9. The clinician reviews the patient-entered medication event without mutation controls.
+10. The patient sees the stored feedback.
+11. The administrator reviews users and activates or deactivates another fictional account.
 
-This MVP scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Meal and exercise records are now available as additional patient self-monitoring context; medication, reminder, and broader reporting workflows remain post-MVP extensions.
+This scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Medication reminders and events are fictional records displayed within the application; the system does not prescribe, interpret adherence, or send notifications.
 
 ## Technology stack
 
@@ -139,9 +143,22 @@ This is the living route inventory. Update it whenever an application route is a
 | GET | `/patient/exercise/<exercise_id>` | Display one exercise entry when it belongs to the signed-in patient | Patient role |
 | GET, POST | `/patient/exercise/<exercise_id>/edit` | Display and process edits for the signed-in patient's exercise entry | Patient role |
 | POST | `/patient/exercise/<exercise_id>/delete` | Delete the signed-in patient's exercise entry after CSRF validation | Patient role |
+| GET | `/patient/reminders` | Display configured fictional reminders for the signed-in patient | Patient role |
+| GET | `/patient/reminders/<reminder_id>` | Display one configured reminder for the signed-in patient | Patient role |
+| GET | `/patient/medication-events/new` | Display the medication-event form | Patient role |
+| POST | `/patient/medication-events` | Validate and store a medication event for the signed-in patient | Patient role |
+| GET | `/patient/medication-events` | Display the signed-in patient's medication-event history | Patient role |
+| GET | `/patient/medication-events/<event_id>` | Display one medication event owned by the signed-in patient | Patient role |
+| GET, POST | `/patient/medication-events/<event_id>/edit` | Display and process edits for the signed-in patient's medication event | Patient role |
+| POST | `/patient/medication-events/<event_id>/delete` | Delete the signed-in patient's medication event after CSRF validation | Patient role |
 | GET | `/clinician` | Display patients assigned to the signed-in clinician | Clinician role |
-| GET | `/clinician/patients/<patient_id>` | Review readings and notes for an assigned patient | Assigned clinician |
+| GET | `/clinician/patients/<patient_id>` | Review assigned-patient records, reminders, events, and notes | Assigned clinician |
 | POST | `/clinician/patients/<patient_id>/notes` | Store a clinician-authored note for an assigned patient | Assigned clinician |
+| GET | `/clinician/patients/<patient_id>/reminders/new` | Display the reminder form for an assigned patient | Assigned clinician |
+| POST | `/clinician/patients/<patient_id>/reminders` | Create a fictional reminder for an assigned patient | Assigned clinician |
+| GET | `/clinician/patients/<patient_id>/reminders/<reminder_id>` | Display one reminder for an assigned patient | Assigned clinician |
+| GET, POST | `/clinician/patients/<patient_id>/reminders/<reminder_id>/edit` | Display and process reminder edits for an assigned patient | Assigned clinician |
+| POST | `/clinician/patients/<patient_id>/reminders/<reminder_id>/delete` | Delete a reminder for an assigned patient after CSRF validation | Assigned clinician |
 | GET | `/admin` | Display fictional users, roles, and account statuses | Administrator role |
 | POST | `/admin/users/<user_id>/status` | Activate or deactivate another fictional account | Administrator role |
 
@@ -190,7 +207,7 @@ The interface should clearly identify the application as an academic prototype. 
 
 ## Project status
 
-Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, meal and exercise CRUD workflows, assigned-clinician review workflow, and basic administrator status management are in place. Medication, reminders, and broader reporting features remain post-MVP extensions.
+Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, meal and exercise CRUD workflows, assigned-clinician review workflow, medication reminder/event workflow, and basic administrator status management are in place. Broader reporting remains a later extension.
 
 ## Project documentation
 

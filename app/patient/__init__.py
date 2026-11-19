@@ -8,12 +8,20 @@ from sqlalchemy import select
 from app import db
 from app.auth.permissions import role_required
 from app.business_rules import can_perform, normalize_recorded_at
-from app.models import ExerciseLog, GlucoseReading, MealLog, PatientProfile
+from app.models import (
+    ExerciseLog,
+    GlucoseReading,
+    MealLog,
+    MedicationEvent,
+    MedicationReminder,
+    PatientProfile,
+)
 from app.patient.forms import (
     DeleteRecordForm,
     ExerciseLogForm,
     GlucoseReadingForm,
     MealLogForm,
+    MedicationEventForm,
 )
 
 
@@ -87,6 +95,20 @@ def dashboard():
             .order_by(ExerciseLog.recorded_at.desc())
         )
     )
+    reminders = list(
+        db.session.scalars(
+            select(MedicationReminder)
+            .where(MedicationReminder.patient_id == profile.id)
+            .order_by(MedicationReminder.created_at.desc())
+        )
+    )
+    medication_events = list(
+        db.session.scalars(
+            select(MedicationEvent)
+            .where(MedicationEvent.patient_id == profile.id)
+            .order_by(MedicationEvent.recorded_at.desc())
+        )
+    )
     recent_readings = readings[:5]
     chart_readings = list(reversed(readings[:7]))
     return render_template(
@@ -99,6 +121,10 @@ def dashboard():
         exercises=exercises[:3],
         meal_count=len(meals),
         exercise_count=len(exercises),
+        reminders=reminders[:3],
+        medication_events=medication_events[:3],
+        reminder_count=len(reminders),
+        medication_event_count=len(medication_events),
     )
 
 
@@ -486,3 +512,185 @@ def delete_exercise(exercise_id):
     db.session.commit()
     flash("The fictional exercise entry was deleted.", "success")
     return redirect(url_for("patient.exercise_history"))
+
+
+def _patient_reminders(profile):
+    return list(
+        db.session.scalars(
+            select(MedicationReminder)
+            .where(MedicationReminder.patient_id == profile.id)
+            .order_by(MedicationReminder.created_at.desc())
+        )
+    )
+
+
+def _medication_event_form(profile, event=None):
+    reminders = _patient_reminders(profile)
+    form = MedicationEventForm(obj=event)
+    form.set_reminders(reminders)
+    if event is not None and request.method == "GET":
+        form.reminder_id.data = str(event.reminder_id or "")
+    return form
+
+
+@patient_bp.get("/reminders")
+@role_required("patient")
+def reminder_history():
+    profile = _current_profile()
+    if not can_perform(
+        current_user, "medication_reminder", "read", patient_profile=profile
+    ):
+        abort(404)
+    return render_template(
+        "patient/reminders.html", reminders=_patient_reminders(profile)
+    )
+
+
+@patient_bp.get("/reminders/<int:reminder_id>")
+@role_required("patient")
+def reminder_detail(reminder_id):
+    profile = _current_profile()
+    reminder = _owned_record(MedicationReminder, reminder_id, profile)
+    if reminder is None or not can_perform(
+        current_user, "medication_reminder", "read", patient_profile=profile
+    ):
+        abort(404)
+    return render_template("patient/reminder_detail.html", reminder=reminder)
+
+
+@patient_bp.get("/medication-events")
+@role_required("patient")
+def medication_event_history():
+    profile = _current_profile()
+    if not can_perform(
+        current_user, "medication_event", "read", patient_profile=profile
+    ):
+        abort(404)
+    events = list(
+        db.session.scalars(
+            select(MedicationEvent)
+            .where(MedicationEvent.patient_id == profile.id)
+            .order_by(MedicationEvent.recorded_at.desc())
+        )
+    )
+    return render_template("patient/medication_events.html", events=events)
+
+
+@patient_bp.get("/medication-events/new")
+@role_required("patient")
+def new_medication_event():
+    profile = _current_profile()
+    if not can_perform(
+        current_user, "medication_event", "create", patient_profile=profile
+    ):
+        abort(403)
+    return render_template(
+        "patient/medication_event_form.html",
+        form=_medication_event_form(profile),
+        editing=False,
+        record_id=None,
+    )
+
+
+@patient_bp.post("/medication-events")
+@role_required("patient")
+def create_medication_event():
+    profile = _current_profile()
+    if not can_perform(
+        current_user, "medication_event", "create", patient_profile=profile
+    ):
+        abort(403)
+    form = _medication_event_form(profile)
+    if not form.validate_on_submit():
+        return render_template(
+            "patient/medication_event_form.html",
+            form=form,
+            editing=False,
+            record_id=None,
+        ), 400
+
+    reminder_id = int(form.reminder_id.data) if form.reminder_id.data else None
+    event = MedicationEvent(
+        patient=profile,
+        reminder_id=reminder_id,
+        status=form.status.data,
+        recorded_at=normalize_recorded_at(form.recorded_at.data),
+        context=form.context.data.strip() or None,
+    )
+    db.session.add(event)
+    db.session.commit()
+    flash("Your fictional medication event was recorded.", "success")
+    return redirect(url_for("patient.medication_event_history"))
+
+
+@patient_bp.get("/medication-events/<int:event_id>")
+@role_required("patient")
+def medication_event_detail(event_id):
+    profile = _current_profile()
+    event = _owned_record(MedicationEvent, event_id, profile)
+    if event is None or not can_perform(
+        current_user, "medication_event", "read", patient_profile=profile
+    ):
+        abort(404)
+    return render_template(
+        "patient/medication_event_detail.html",
+        event=event,
+        delete_form=DeleteRecordForm(),
+    )
+
+
+@patient_bp.route("/medication-events/<int:event_id>/edit", methods=["GET", "POST"])
+@role_required("patient")
+def edit_medication_event(event_id):
+    profile = _current_profile()
+    event = _owned_record(MedicationEvent, event_id, profile)
+    if event is None:
+        abort(404)
+    if not can_perform(
+        current_user, "medication_event", "update", patient_profile=profile
+    ):
+        abort(403)
+    form = _medication_event_form(profile, event=event)
+    if request.method == "POST":
+        if not form.validate_on_submit():
+            return render_template(
+                "patient/medication_event_form.html",
+                form=form,
+                editing=True,
+                record_id=event.id,
+            ), 400
+        event.reminder_id = int(form.reminder_id.data) if form.reminder_id.data else None
+        event.status = form.status.data
+        event.recorded_at = normalize_recorded_at(form.recorded_at.data)
+        event.context = form.context.data.strip() or None
+        db.session.commit()
+        flash("Your fictional medication event was updated.", "success")
+        return redirect(
+            url_for("patient.medication_event_detail", event_id=event.id)
+        )
+    return render_template(
+        "patient/medication_event_form.html",
+        form=form,
+        editing=True,
+        record_id=event.id,
+    )
+
+
+@patient_bp.post("/medication-events/<int:event_id>/delete")
+@role_required("patient")
+def delete_medication_event(event_id):
+    profile = _current_profile()
+    event = _owned_record(MedicationEvent, event_id, profile)
+    if event is None:
+        abort(404)
+    if not can_perform(
+        current_user, "medication_event", "delete", patient_profile=profile
+    ):
+        abort(403)
+    form = DeleteRecordForm()
+    if not form.validate_on_submit():
+        abort(400)
+    db.session.delete(event)
+    db.session.commit()
+    flash("The fictional medication event was deleted.", "success")
+    return redirect(url_for("patient.medication_event_history"))

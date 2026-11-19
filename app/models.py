@@ -58,6 +58,11 @@ class User(UserMixin, db.Model):
         foreign_keys="ClinicianNote.author_user_id",
         back_populates="author",
     )
+    configured_reminders = db.relationship(
+        "MedicationReminder",
+        foreign_keys="MedicationReminder.configuring_clinician_id",
+        back_populates="configuring_clinician",
+    )
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -133,6 +138,18 @@ class PatientProfile(db.Model):
         cascade="all, delete-orphan",
         order_by="ExerciseLog.recorded_at.desc()",
     )
+    medication_reminders = db.relationship(
+        "MedicationReminder",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        order_by="MedicationReminder.created_at.desc()",
+    )
+    medication_events = db.relationship(
+        "MedicationEvent",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        order_by="MedicationEvent.recorded_at.desc()",
+    )
     clinician_notes = db.relationship(
         "ClinicianNote",
         back_populates="patient",
@@ -204,6 +221,81 @@ class ExerciseLog(db.Model):
     )
 
     patient = db.relationship("PatientProfile", back_populates="exercise_logs")
+
+
+class MedicationReminder(db.Model):
+    __tablename__ = "medication_reminders"
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patient_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    configuring_clinician_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True,
+    )
+    medication_label_demo = db.Column(db.String(120), nullable=False)
+    schedule_description = db.Column(db.String(240), nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    patient = db.relationship("PatientProfile", back_populates="medication_reminders")
+    configuring_clinician = db.relationship(
+        "User",
+        foreign_keys=[configuring_clinician_id],
+        back_populates="configured_reminders",
+    )
+    events = db.relationship("MedicationEvent", back_populates="reminder")
+
+
+class MedicationEvent(db.Model):
+    __tablename__ = "medication_events"
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patient_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    reminder_id = db.Column(
+        db.Integer,
+        db.ForeignKey("medication_reminders.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    status = db.Column(db.String(30), nullable=False)
+    recorded_at = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    context = db.Column(db.String(500), nullable=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    patient = db.relationship("PatientProfile", back_populates="medication_events")
+    reminder = db.relationship("MedicationReminder", back_populates="events")
 
 
 class ClinicianNote(db.Model):

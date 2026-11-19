@@ -125,5 +125,68 @@
     {% endif %}
   </section>
 
+  <div class="mt-4 grid gap-4 lg:grid-cols-2">
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-semibold text-slate-950">Medication reminders</h2>
+          <p class="mt-1 text-sm leading-6 text-slate-600">Configure fictional reminders for this assigned patient. These are not prescriptions or treatment instructions.</p>
+        </div>
+        <a class="inline-flex min-h-10 items-center justify-center rounded-lg bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800" href="{{ url_for('clinician.new_reminder', patient_id=patient.id) }}">Add reminder</a>
+      </div>
+      {% if reminders %}
+        <div class="mt-4 space-y-3">
+          {% for reminder in reminders %}
+            <article class="rounded-xl border border-slate-200 p-4">
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 class="font-medium text-slate-900">{{ reminder.medication_label_demo }}</h3>
+                  <p class="mt-1 text-sm text-slate-600">{{ reminder.schedule_description }}</p>
+                </div>
+                <span class="rounded-full px-2.5 py-1 text-xs font-semibold {{ 'bg-emerald-100 text-emerald-800' if reminder.is_active else 'bg-slate-100 text-slate-700' }}">{{ 'Active' if reminder.is_active else 'Inactive' }}</span>
+              </div>
+              <div class="mt-3 flex flex-wrap gap-3 text-sm">
+                <a class="font-semibold text-blue-700 hover:text-blue-900" href="{{ url_for('clinician.reminder_detail', patient_id=patient.id, reminder_id=reminder.id) }}">View</a>
+                <a class="font-semibold text-blue-700 hover:text-blue-900" href="{{ url_for('clinician.edit_reminder', patient_id=patient.id, reminder_id=reminder.id) }}">Edit</a>
+                <form method="post" action="{{ url_for('clinician.delete_reminder', patient_id=patient.id, reminder_id=reminder.id) }}" onsubmit="return confirm('Delete this fictional reminder?');">
+                  {{ delete_reminder_forms[reminder.id].hidden_tag() }}
+                  {{ delete_reminder_forms[reminder.id].submit(class="font-semibold text-rose-700 hover:text-rose-900") }}
+                </form>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">No fictional reminders have been configured yet.</p>
+      {% endif %}
+    </section>
+
+    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-semibold text-slate-950">Medication events</h2>
+          <p class="mt-1 text-sm leading-6 text-slate-600">Read-only entries recorded by the patient. The system does not infer adherence or clinical meaning.</p>
+        </div>
+        <span class="text-sm text-slate-500">{{ medication_events|length }} total</span>
+      </div>
+      {% if medication_events %}
+        <div class="mt-4 space-y-3">
+          {% for event in medication_events %}
+            <article class="rounded-xl border border-slate-200 p-4">
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <span class="font-medium capitalize text-slate-900">{{ event.status|replace('_', ' ') }}</span>
+                <time class="text-sm text-slate-500" datetime="{{ event.recorded_at.isoformat() }}">{{ event.recorded_at.strftime('%d %b %Y, %H:%M') }}</time>
+              </div>
+              <p class="mt-1 text-sm text-slate-600">{{ event.reminder.medication_label_demo if event.reminder else 'No linked reminder' }}</p>
+              {% if event.context %}<p class="mt-2 text-sm leading-6 text-slate-700">{{ event.context }}</p>{% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">No medication events have been recorded yet.</p>
+      {% endif %}
+    </section>
+  </div>
+
   <p class="mt-4 rounded-lg bg-amber-50 p-4 text-sm leading-6 text-amber-900">This is an academic prototype. Notes are stored and displayed; the system does not generate medical advice or treatment instructions.</p>
 {% endblock %}
