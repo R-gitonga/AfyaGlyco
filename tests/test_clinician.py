@@ -1,7 +1,15 @@
 from datetime import datetime, timezone
 
 from app import create_app, db
-from app.models import ClinicianNote, GlucoseReading, PatientProfile, Role, User
+from app.models import (
+    ClinicianNote,
+    ExerciseLog,
+    GlucoseReading,
+    MealLog,
+    PatientProfile,
+    Role,
+    User,
+)
 
 
 def make_clinician_app():
@@ -36,13 +44,31 @@ def make_clinician_app():
         )
         db.session.add(profile)
         db.session.flush()
-        db.session.add(
-            GlucoseReading(
-                patient=profile,
-                value_demo=6.4,
-                recorded_at=datetime(2026, 11, 6, 9, 30, tzinfo=timezone.utc),
-                reading_context="Before breakfast",
-            )
+        db.session.add_all(
+            [
+                GlucoseReading(
+                    patient=profile,
+                    value_demo=6.4,
+                    recorded_at=datetime(2026, 11, 6, 9, 30, tzinfo=timezone.utc),
+                    reading_context="Before breakfast",
+                ),
+                MealLog(
+                    patient=profile,
+                    meal_type="breakfast",
+                    description="Fictional clinician-visible meal",
+                    recorded_at=datetime(
+                        2026, 11, 6, 8, 0, tzinfo=timezone.utc
+                    ),
+                ),
+                ExerciseLog(
+                    patient=profile,
+                    activity_type="Fictional clinician-visible exercise",
+                    duration_minutes=25,
+                    recorded_at=datetime(
+                        2026, 11, 6, 7, 0, tzinfo=timezone.utc
+                    ),
+                ),
+            ]
         )
         db.session.commit()
 
@@ -71,6 +97,8 @@ def test_assigned_clinician_can_review_patient_and_add_note():
     review = client.get(f"/clinician/patients/{patient_id}")
     assert review.status_code == 200
     assert b"Before breakfast" in review.data
+    assert b"Fictional clinician-visible meal" in review.data
+    assert b"Fictional clinician-visible exercise" in review.data
 
     response = client.post(
         f"/clinician/patients/{patient_id}/notes",
@@ -120,3 +148,15 @@ def test_empty_clinician_note_is_rejected():
     assert b"Enter a note." in response.data
     with app.app_context():
         assert ClinicianNote.query.count() == 0
+
+
+def test_unassigned_clinician_cannot_read_meal_or_exercise_records():
+    app = make_clinician_app()
+    with app.app_context():
+        patient = PatientProfile.query.one()
+        patient_id = patient.id
+
+    client = app.test_client()
+    login(client, "other-clinician@example.test", "other-clinician-password")
+
+    assert client.get(f"/clinician/patients/{patient_id}").status_code == 404

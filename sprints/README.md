@@ -11,8 +11,10 @@ This folder contains the planning notes, decisions, progress updates, and review
 | 03 | Patient workflow | A patient can add and review glucose readings on a responsive dashboard with a simple trend |
 | 04 | Clinician workflow | An assigned clinician can review a patient and add a note that the patient can see |
 | 05 | Administrator and presentation readiness | Demo-user status management, responsive polish, prototype safety messaging, seed preparation, and rehearsal |
+| 06 | Business rules and self-monitoring CRUD | A patient can manage glucose, meal, and exercise entries, and an assigned clinician can view them read-only |
+| 07 | Medication reminders and events | A clinician can configure fictional reminders and a patient can record medication events without dosage guidance |
 
-Meal, exercise, medication, reminder, report, and external-integration features are post-MVP extensions. Every sprint must preserve the mobile-responsive requirement in `agents.md`.
+Reports and external-integration features remain post-MVP extensions. Every sprint must preserve the mobile-responsive requirement in `agents.md`.
 
 ## Sprint naming
 

@@ -4,7 +4,7 @@
 
 # Use (CTRL + SHIFT + V) to convert to mermaid and view flowcharts.
 
-This document explains how AfyaGlyco is expected to work before implementation begins. It is both a student tutorial and a living design reference.
+This document explains how AfyaGlyco works and how planned changes fit the implemented design. It is both a student tutorial and a living design reference.
 
 The diagrams use Mermaid flowchart syntax. They should be readable in Markdown tools that support Mermaid, and they should be kept close to the written explanation so that a reader can follow the system from user action to stored data and back to the user.
 
@@ -14,11 +14,14 @@ Sprint 01 implements the core records for the first vertical slice: users, roles
 
 Sprint 02 implements session-based authentication, CSRF-protected sign-in and sign-out, fictional demo-account seeding, and server-side role protection for patient, clinician, and administrator areas. The role dashboards are intentionally small placeholders until the related workflows are implemented.
 
+Sprint 06 implements the central business-rules contract and complete patient CRUD for meal and exercise records. Patients can manage only their own records, while assigned clinicians can read those records without mutation controls. The rules module is the authoritative application-level source for permissions and shared constraints.
+
 ## How to read the model
 
 - A user action starts a flow.
 - A Flask route receives and validates the request.
-- A service or model applies the application rules.
+- The central business-rules module applies permissions and shared constraints.
+- A service or model coordinates the authorized operation.
 - PostgreSQL stores or retrieves the record.
 - The response returns to the appropriate dashboard.
 - A clinician note or simulated reminder is shown as application output, not as an autonomous medical decision.
@@ -69,7 +72,9 @@ flowchart LR
 
 This is the primary student demonstration flow. It shows how a patient creates a record and later sees it in a dashboard.
 
-The glucose-reading branch is implemented in Sprint 03. A signed-in patient opens the responsive patient dashboard, submits a value, timestamp, and optional context, and can then view the entry in the dashboard, history, and detail pages. Every patient query is filtered by the signed-in user's patient profile; attempting to open another patient's reading returns a not-found response. The other self-monitoring branches remain planned work.
+The glucose-reading branch is implemented in Sprint 03 and its CRUD completeness is closed in Sprint 06. A signed-in patient opens the responsive patient dashboard, submits a value, timestamp, and optional context, and can then view, edit, or delete the entry through the history and detail pages. Every patient query is filtered by the signed-in user's patient profile; attempting to open or mutate another patient's reading returns a not-found response.
+
+The meal and exercise branches are implemented in Sprint 06. A patient can create, view, edit, and delete their own fictional meal or exercise records. The same ownership check is applied to every read, update, and delete query. An assigned clinician can read the records from the patient review page, but cannot mutate them. The application stores and displays these entries without calculating nutrition, prescribing exercise, or inferring clinical outcomes.
 
 ```mermaid
 flowchart TD
@@ -158,10 +163,11 @@ This diagram describes the expected separation of responsibilities in the Flask 
 flowchart TB
     Browser[Browser]
     Routes[Flask routes and blueprints\nReceive requests and choose responses]
-    PatientRoutes[Patient blueprint\nDashboard and reading routes]
+    PatientRoutes[Patient blueprint\nDashboard, reading, meal, and exercise routes]
     ClinicianRoutes[Clinician blueprint\nAssigned review and note routes]
     AdminRoutes[Admin blueprint\nUser status routes]
     Auth[Authentication and authorization\nIdentity, sessions, role checks]
+    Rules[Business rules\nPermissions, ownership, shared constraints]
     Forms[Forms and validation\nReject incomplete or invalid input]
     Services[Application services\nCoordinate use cases]
     Models[SQLAlchemy models\nRepresent domain records]
@@ -178,6 +184,9 @@ flowchart TB
     PatientRoutes --> Auth
     ClinicianRoutes --> Auth
     AdminRoutes --> Auth
+    PatientRoutes --> Rules
+    ClinicianRoutes --> Rules
+    AdminRoutes --> Rules
     PatientRoutes --> Forms
     ClinicianRoutes --> Forms
     AdminRoutes --> Forms
@@ -271,6 +280,8 @@ The field names above are conceptual. They may change during implementation, but
 
 The current implementation uses one optional assigned clinician per patient profile for the first MVP. The patient profile still belongs to its patient user; the clinician relationship is used to limit review access.
 
+The current implementation uses concrete `MealLog` and `ExerciseLog` records. Patients have complete CRUD access to their own glucose, meal, and exercise entries, assigned clinicians have read-only access, and administrators do not receive health-record access by default. These permissions are defined in `app/business_rules.py` and enforced by the routes.
+
 ## 7. Student demonstration tutorial
 
 ### Prepare the demonstration
@@ -286,9 +297,11 @@ The current implementation uses one optional assigned clinician per patient prof
 1. Sign in with the seeded patient account.
 2. Open the patient dashboard.
 3. Add one or more fictional glucose readings.
-4. Return to the dashboard.
-5. Show the new entries and updated chart.
-6. Sign out after confirming the reading history.
+4. Add a fictional meal and exercise entry.
+5. Return to the dashboard.
+6. Show the new entries and updated recorded-value summary.
+7. Open a meal or exercise entry, demonstrate edit, then demonstrate delete.
+8. Sign out after confirming the reading, meal, and exercise histories.
 
 ### Demonstrate the clinician role
 
@@ -339,4 +352,5 @@ For each significant change:
 | 2026-11-06 | Added the patient glucose-reading workflow with responsive entry, history, detail, summary, and ownership checks | Sections 2, 5, and 6 | Establish the first patient data-entry slice while preserving record ownership boundaries |
 | 2026-11-06 | Added assigned-clinician review, reading display, clinician-authored notes, patient feedback display, and assignment checks | Sections 3, 5, and 6 | Complete the first patient-to-clinician review loop while preserving the authorization boundary |
 | 2026-11-06 | Added administrator user listing, role/status display, account activation/deactivation, self-lockout protection, and responsive role navigation | Sections 4 and 5 | Make the fictional demonstration manageable and ready for a supervised board walkthrough |
+| 2026-11-18 | Added a central business-rules contract, completed glucose CRUD, and added patient CRUD for meal and exercise records with assigned-clinician read-only review | Sections 1, 2, 3, 5, and 6 | Extend self-monitoring context while preserving explicit ownership and non-clinical prototype boundaries |
 

@@ -4,6 +4,7 @@ from sqlalchemy import select
 
 from app import db
 from app.auth.permissions import role_required
+from app.business_rules import can_change_account_status
 from app.models import User
 from app.admin.forms import AdminActionForm
 
@@ -29,7 +30,7 @@ def update_status(user_id):
     if not form.validate_on_submit():
         abort(400)
 
-    if target.id == current_user.id:
+    if not can_change_account_status(current_user, target):
         flash("You cannot deactivate your own administrator account.", "error")
         return redirect(url_for("admin.dashboard"))
 

@@ -87,7 +87,7 @@ The primary demonstration should follow this sequence:
 6. The patient signs in again and sees the stored feedback.
 7. The administrator reviews users and activates or deactivates another fictional account.
 
-This MVP scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Meal, exercise, medication, reminder, and reporting workflows remain post-MVP extensions.
+This MVP scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Meal and exercise records are now available as additional patient self-monitoring context; medication, reminder, and broader reporting workflows remain post-MVP extensions.
 
 ## Technology stack
 
@@ -125,6 +125,20 @@ This is the living route inventory. Update it whenever an application route is a
 | POST | `/patient/readings` | Validate and store a reading for the signed-in patient | Patient role |
 | GET | `/patient/readings` | Display the signed-in patient's reading history | Patient role |
 | GET | `/patient/readings/<reading_id>` | Display one reading when it belongs to the signed-in patient | Patient role |
+| GET, POST | `/patient/readings/<reading_id>/edit` | Display and process edits for the signed-in patient's reading | Patient role |
+| POST | `/patient/readings/<reading_id>/delete` | Delete the signed-in patient's reading after CSRF validation | Patient role |
+| GET | `/patient/meals/new` | Display the meal-entry form | Patient role |
+| POST | `/patient/meals` | Validate and store a meal for the signed-in patient | Patient role |
+| GET | `/patient/meals` | Display the signed-in patient's meal history | Patient role |
+| GET | `/patient/meals/<meal_id>` | Display one meal when it belongs to the signed-in patient | Patient role |
+| GET, POST | `/patient/meals/<meal_id>/edit` | Display and process edits for the signed-in patient's meal | Patient role |
+| POST | `/patient/meals/<meal_id>/delete` | Delete the signed-in patient's meal after CSRF validation | Patient role |
+| GET | `/patient/exercise/new` | Display the exercise-entry form | Patient role |
+| POST | `/patient/exercise` | Validate and store an exercise entry for the signed-in patient | Patient role |
+| GET | `/patient/exercise` | Display the signed-in patient's exercise history | Patient role |
+| GET | `/patient/exercise/<exercise_id>` | Display one exercise entry when it belongs to the signed-in patient | Patient role |
+| GET, POST | `/patient/exercise/<exercise_id>/edit` | Display and process edits for the signed-in patient's exercise entry | Patient role |
+| POST | `/patient/exercise/<exercise_id>/delete` | Delete the signed-in patient's exercise entry after CSRF validation | Patient role |
 | GET | `/clinician` | Display patients assigned to the signed-in clinician | Clinician role |
 | GET | `/clinician/patients/<patient_id>` | Review readings and notes for an assigned patient | Assigned clinician |
 | POST | `/clinician/patients/<patient_id>/notes` | Store a clinician-authored note for an assigned patient | Assigned clinician |
@@ -136,6 +150,7 @@ This is the living route inventory. Update it whenever an application route is a
 ```text
 app/
   __init__.py
+  business_rules.py
   auth/
   admin/
   patient/
@@ -175,7 +190,7 @@ The interface should clearly identify the application as an academic prototype. 
 
 ## Project status
 
-Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, assigned-clinician review workflow, and basic administrator status management are in place. Meal, exercise, medication, and broader reporting features remain post-MVP extensions.
+Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, meal and exercise CRUD workflows, assigned-clinician review workflow, and basic administrator status management are in place. Medication, reminders, and broader reporting features remain post-MVP extensions.
 
 ## Project documentation
 

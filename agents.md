@@ -67,6 +67,12 @@ Implement in this order:
 
 Keep each step runnable. Do not build a large untested feature batch when a smaller vertical slice can be demonstrated first.
 
+## Feature completeness and CRUD
+
+Every feature must define its complete set of applicable Create, Read, Update, and Delete operations before implementation begins. For each operation, document which roles may perform it and enforce that authorization in the route handler and service or query layer.
+
+Implement every allowed operation as part of the feature slice, including its server-side validation, responsive UI, tests, and documentation. If an operation is intentionally not allowed—for example, audit events may be append-only or clinician-authored notes may be immutable—record the restriction, explain the reason, and enforce it explicitly rather than silently omitting it.
+
 ## Security and data rules
 
 - Never commit passwords, tokens, API keys, or production connection strings.

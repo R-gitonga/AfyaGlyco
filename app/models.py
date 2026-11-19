@@ -121,6 +121,18 @@ class PatientProfile(db.Model):
         cascade="all, delete-orphan",
         order_by="GlucoseReading.recorded_at.desc()",
     )
+    meal_logs = db.relationship(
+        "MealLog",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        order_by="MealLog.recorded_at.desc()",
+    )
+    exercise_logs = db.relationship(
+        "ExerciseLog",
+        back_populates="patient",
+        cascade="all, delete-orphan",
+        order_by="ExerciseLog.recorded_at.desc()",
+    )
     clinician_notes = db.relationship(
         "ClinicianNote",
         back_populates="patient",
@@ -148,6 +160,50 @@ class GlucoseReading(db.Model):
     )
 
     patient = db.relationship("PatientProfile", back_populates="glucose_readings")
+
+
+class MealLog(db.Model):
+    __tablename__ = "meal_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patient_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    meal_type = db.Column(db.String(30), nullable=False)
+    description = db.Column(db.String(500), nullable=False)
+    recorded_at = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    patient = db.relationship("PatientProfile", back_populates="meal_logs")
+
+
+class ExerciseLog(db.Model):
+    __tablename__ = "exercise_logs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    patient_id = db.Column(
+        db.Integer,
+        db.ForeignKey("patient_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    activity_type = db.Column(db.String(120), nullable=False)
+    duration_minutes = db.Column(db.Integer, nullable=False)
+    recorded_at = db.Column(db.DateTime(timezone=True), nullable=False, index=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+
+    patient = db.relationship("PatientProfile", back_populates="exercise_logs")
 
 
 class ClinicianNote(db.Model):

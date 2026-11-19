@@ -22,6 +22,8 @@
           </div>
           <div class="mt-5 flex flex-wrap gap-4 text-sm text-slate-600">
             <span>{{ patient.glucose_readings|length }} recorded value{% if patient.glucose_readings|length != 1 %}s{% endif %}</span>
+            <span>{{ patient.meal_logs|length }} meal{% if patient.meal_logs|length != 1 %}s{% endif %}</span>
+            <span>{{ patient.exercise_logs|length }} exercise entr{% if patient.exercise_logs|length != 1 %}ies{% else %}y{% endif %}</span>
             <span>{{ patient.clinician_notes|length }} note{% if patient.clinician_notes|length != 1 %}s{% endif %}</span>
           </div>
           <p class="mt-5 text-sm font-semibold text-blue-700">Open review →</p>
