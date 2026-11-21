@@ -147,6 +147,7 @@ Keep documentation honest. Do not claim that the system is clinically validated,
 
 - Inspect existing files before editing them.
 - Make focused changes that are easy to review.
+- Add brief, useful comments or module descriptions to explain the purpose of changed files and non-obvious functions. Keep comments accurate, concise, and focused on intent rather than restating every line of code.
 - Preserve user changes and avoid destructive commands.
 - Prefer migrations and reversible changes over direct database edits.
 - Run targeted tests after each meaningful implementation step.

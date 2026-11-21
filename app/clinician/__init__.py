@@ -1,3 +1,5 @@
+"""Clinician routes for patient registers, review, notes, reminders, and reports."""
+
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user
 from sqlalchemy import select
@@ -7,9 +9,15 @@ from app.auth.permissions import role_required
 from app.clinician.forms import (
     ClinicianNoteForm,
     DeleteReminderForm,
+    ExistingPatientForm,
     MedicationReminderForm,
+    PatientRegistrationForm,
 )
-from app.business_rules import can_perform
+from app.business_rules import (
+    can_create_patient_registration,
+    can_manage_patient_assignment,
+    can_perform,
+)
 from app.models import (
     ClinicianNote,
     ExerciseLog,
@@ -18,6 +26,8 @@ from app.models import (
     MedicationEvent,
     MedicationReminder,
     PatientProfile,
+    Role,
+    User,
 )
 from app.reporting import build_patient_report
 from app.reporting_forms import ReportFilterForm
@@ -54,6 +64,109 @@ def dashboard():
         )
     )
     return render_template("dashboard/clinician.html", patients=patients)
+
+
+def _current_organization():
+    organization = current_user.organization
+    if organization is None or not organization.is_active:
+        abort(404)
+    return organization
+
+
+def _register_patients():
+    return list(
+        db.session.scalars(
+            select(PatientProfile)
+            .where(PatientProfile.assigned_clinician_id == current_user.id)
+            .order_by(PatientProfile.display_name.asc())
+        )
+    )
+
+
+@clinician_bp.get("/patients")
+@role_required("clinician")
+def patient_register():
+    _current_organization()
+    return render_template("clinician/patients.html", patients=_register_patients())
+
+
+@clinician_bp.route("/patients/register", methods=["GET", "POST"])
+@role_required("clinician")
+def register_patient():
+    organization = _current_organization()
+    if not can_create_patient_registration(current_user, organization):
+        abort(403)
+    form = PatientRegistrationForm()
+    if form.validate_on_submit():
+        email = form.email.data.strip().lower()
+        if User.query.filter_by(email=email).first() is not None:
+            form.email.errors.append(
+                "An account with this email already exists; use the existing-patient flow."
+            )
+        else:
+            role = db.session.scalar(select(Role).where(Role.name == "patient"))
+            if role is None:
+                role = Role(name="patient")
+                db.session.add(role)
+            user = User(
+                email=email,
+                display_name=form.display_name.data.strip(),
+                organization=organization,
+            )
+            user.set_password(form.password.data)
+            user.roles.append(role)
+            profile = PatientProfile(
+                user=user,
+                organization=organization,
+                assigned_clinician=current_user,
+                display_name=form.display_name.data.strip(),
+            )
+            db.session.add_all([user, profile])
+            db.session.commit()
+            flash("The fictional patient was registered to your patient register.", "success")
+            return redirect(url_for("clinician.patient_register"))
+    return render_template("clinician/patient_registration_form.html", form=form)
+
+
+def _unassigned_patients(organization):
+    return list(
+        db.session.scalars(
+            select(PatientProfile)
+            .join(PatientProfile.user)
+            .join(User.roles)
+            .where(
+                PatientProfile.organization_id == organization.id,
+                PatientProfile.assigned_clinician_id.is_(None),
+                User.is_active.is_(True),
+                Role.name == "patient",
+            )
+            .order_by(PatientProfile.display_name.asc())
+        )
+    )
+
+
+@clinician_bp.route("/patients/add-existing", methods=["GET", "POST"])
+@role_required("clinician")
+def add_existing_patient():
+    organization = _current_organization()
+    form = ExistingPatientForm()
+    patients = _unassigned_patients(organization)
+    form.set_patients(patients)
+    if form.validate_on_submit():
+        patient = db.session.get(PatientProfile, int(form.patient_id.data))
+        if patient is None or not can_manage_patient_assignment(
+            current_user, "create", patient_profile=patient
+        ):
+            abort(404)
+        if patient.assigned_clinician_id is not None:
+            abort(409)
+        patient.assigned_clinician = current_user
+        db.session.commit()
+        flash("The existing fictional patient was added to your register.", "success")
+        return redirect(url_for("clinician.patient_register"))
+    return render_template(
+        "clinician/add_existing_patient.html", form=form, patients=patients
+    )
 
 
 @clinician_bp.get("/patients/<int:patient_id>")

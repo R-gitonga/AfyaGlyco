@@ -1,3 +1,5 @@
+"""Unit tests for centralized permission and ownership decisions."""
+
 from types import SimpleNamespace
 
 from app.business_rules import (
@@ -55,6 +57,33 @@ def test_business_rules_keep_reports_read_only():
     assert allowed_operations("patient_report", "patient") == {"read"}
     assert allowed_operations("patient_report", "clinician") == {"read"}
     assert allowed_operations("patient_report", "administrator") == set()
+
+
+def test_business_rules_expose_organization_and_registration_boundaries():
+    assert allowed_operations("organization", "administrator") == {
+        "create",
+        "read",
+        "update",
+    }
+    assert allowed_operations("clinician_account", "administrator") == {
+        "create",
+        "read",
+        "update",
+    }
+    assert allowed_operations("patient_registration", "clinician") == {
+        "create",
+        "read",
+        "update",
+    }
+    assert allowed_operations("patient_assignment", "clinician") == {
+        "create",
+        "read",
+    }
+    assert allowed_operations("patient_assignment", "administrator") == {
+        "create",
+        "read",
+        "update",
+    }
 
 
 def test_business_rules_enforce_patient_ownership_and_clinician_assignment():

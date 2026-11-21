@@ -15,6 +15,7 @@
             <nav class="flex flex-wrap items-center gap-1" aria-label="Role navigation">
               {% if current_user.has_role('patient') %}
                 <a class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" href="{{ url_for('patient.dashboard') }}">Patient</a>
+                <a class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-emerald-50 hover:text-emerald-800" href="{{ url_for('patient.profile_summary') }}">Profile</a>
               {% endif %}
               {% if current_user.has_role('clinician') %}
                 <a class="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-blue-50 hover:text-blue-800" href="{{ url_for('clinician.dashboard') }}">Clinician</a>

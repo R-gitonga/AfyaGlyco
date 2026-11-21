@@ -80,18 +80,19 @@ The first version should focus on a small, complete, demonstrable workflow rathe
 The primary demonstration should follow this sequence:
 
 1. Run the seed command to prepare fictional patient, clinician, and administrator accounts.
-2. The patient signs in and records several fictional glucose readings.
-3. The patient dashboard displays recent entries and a simple recorded-value summary.
-4. The assigned clinician signs in and reviews the patient's readings.
-5. The clinician adds a clinician-authored feedback note.
-6. The patient signs in again and sees the stored feedback.
-7. The clinician configures a fictional medication reminder for the assigned patient.
-8. The patient signs in again, views the reminder, and records a medication event.
-9. The clinician reviews the patient-entered medication event without mutation controls.
-10. The patient opens the read-only report and reviews transparent counts and recorded-value trends.
-11. The clinician opens the assigned patient's read-only report.
-12. The patient sees the stored feedback.
-13. The administrator reviews users and activates or deactivates another fictional account.
+2. The administrator creates or confirms a fictional organization and clinician account.
+3. The clinician registers or attaches a fictional patient to their register.
+4. The patient signs in and records several fictional glucose readings.
+5. The patient dashboard displays recent entries and a simple recorded-value summary.
+6. The assigned clinician signs in and reviews the patient's readings.
+7. The clinician adds a clinician-authored feedback note.
+8. The patient signs in again and sees the stored feedback.
+9. The clinician configures a fictional medication reminder for the assigned patient.
+10. The patient signs in again, views the reminder, and records a medication event.
+11. The clinician reviews the patient-entered medication event without mutation controls.
+12. The patient opens the read-only report and reviews transparent counts and recorded-value trends.
+13. The clinician opens the assigned patient's read-only report.
+14. The administrator reviews users and activates or deactivates another fictional account.
 
 This scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Medication reminders and events are fictional records displayed within the application; the system does not prescribe, interpret adherence, or send notifications.
 
@@ -163,8 +164,22 @@ This is the living route inventory. Update it whenever an application route is a
 | GET | `/clinician/patients/<patient_id>/reminders/<reminder_id>` | Display one reminder for an assigned patient | Assigned clinician |
 | GET, POST | `/clinician/patients/<patient_id>/reminders/<reminder_id>/edit` | Display and process reminder edits for an assigned patient | Assigned clinician |
 | POST | `/clinician/patients/<patient_id>/reminders/<reminder_id>/delete` | Delete a reminder for an assigned patient after CSRF validation | Assigned clinician |
+| GET | `/clinician/patients` | Display the signed-in clinician's organization-scoped patient register | Clinician role |
+| GET, POST | `/clinician/patients/register` | Display and process a new fictional patient registration for the signed-in clinician | Clinician role |
+| GET, POST | `/clinician/patients/add-existing` | Display and process attachment of an existing unassigned patient in the clinician's organization | Clinician role |
+| GET | `/patient/profile` | Display the signed-in patient's organization and assigned clinician as read-only metadata | Patient role |
 | GET | `/admin` | Display fictional users, roles, and account statuses | Administrator role |
 | POST | `/admin/users/<user_id>/status` | Activate or deactivate another fictional account | Administrator role |
+| GET | `/admin/organizations` | Display fictional clinics and hospitals | Administrator role |
+| GET, POST | `/admin/organizations/new` | Display and create a fictional organization | Administrator role |
+| GET, POST | `/admin/organizations/<organization_id>/edit` | Display and update organization metadata | Administrator role |
+| POST | `/admin/organizations/<organization_id>/status` | Activate or deactivate an organization | Administrator role |
+| GET | `/admin/clinicians` | Display clinician accounts and organization membership | Administrator role |
+| GET, POST | `/admin/clinicians/new` | Display and create a fictional clinician account | Administrator role |
+| GET, POST | `/admin/clinicians/<user_id>/edit` | Display and update clinician account metadata | Administrator role |
+| POST | `/admin/clinicians/<user_id>/status` | Activate or deactivate a clinician account | Administrator role |
+| GET | `/admin/patients` | Display patient assignment metadata without health records | Administrator role |
+| POST | `/admin/patients/<patient_id>/assignment` | Transfer or unassign a patient clinician assignment | Administrator role |
 
 ## Suggested application areas
 
@@ -211,7 +226,7 @@ The interface should clearly identify the application as an academic prototype. 
 
 ## Project status
 
-Project documentation, the Flask foundation, migrations, authentication, role protection, patient glucose-reading workflow, meal and exercise CRUD workflows, assigned-clinician review workflow, medication reminder/event workflow, read-only patient and clinician reports, and basic administrator status management are in place. Exporting and broader analytics remain later extensions.
+Project documentation, the Flask foundation, migrations, authentication, role protection, organization-scoped clinician and patient registration, patient glucose-reading workflow, meal and exercise CRUD workflows, assigned-clinician review workflow, medication reminder/event workflow, read-only patient and clinician reports, and administrator status management are in place. Exporting and broader analytics remain later extensions.
 
 ## Project documentation
 

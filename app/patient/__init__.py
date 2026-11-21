@@ -1,3 +1,5 @@
+"""Patient routes for self-monitoring records, profile metadata, and reports."""
+
 from datetime import timezone
 from decimal import Decimal
 
@@ -7,7 +9,7 @@ from sqlalchemy import select
 
 from app import db
 from app.auth.permissions import role_required
-from app.business_rules import can_perform, normalize_recorded_at
+from app.business_rules import can_manage_patient_registration, can_perform, normalize_recorded_at
 from app.models import (
     ExerciseLog,
     GlucoseReading,
@@ -156,6 +158,17 @@ def report_summary():
         form=form,
         report=report,
     ), status_code
+
+
+@patient_bp.get("/profile")
+@role_required("patient")
+def profile_summary():
+    profile = _current_profile()
+    if not can_manage_patient_registration(
+        current_user, "read", patient_profile=profile
+    ):
+        abort(404)
+    return render_template("patient/profile.html", profile=profile)
 
 
 @patient_bp.get("/readings/new")

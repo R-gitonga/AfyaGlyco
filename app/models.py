@@ -1,3 +1,5 @@
+"""SQLAlchemy models for users, organizations, patient records, and reviews."""
+
 from datetime import datetime, timezone
 
 from flask_login import UserMixin
@@ -23,13 +25,45 @@ role_assignments = db.Table(
 )
 
 
+class Organization(db.Model):
+    __tablename__ = "organizations"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(160), nullable=False, unique=True)
+    organization_type = db.Column(db.String(30), nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+    )
+
+    users = db.relationship("User", back_populates="organization")
+    patient_profiles = db.relationship(
+        "PatientProfile", back_populates="organization"
+    )
+
+
 class User(UserMixin, db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)
+    display_name = db.Column(db.String(120), nullable=True)
     password_hash = db.Column(db.String(255), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
+    organization_id = db.Column(
+        db.Integer,
+        db.ForeignKey("organizations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     created_at = db.Column(
         db.DateTime(timezone=True),
         nullable=False,
@@ -63,6 +97,7 @@ class User(UserMixin, db.Model):
         foreign_keys="MedicationReminder.configuring_clinician_id",
         back_populates="configuring_clinician",
     )
+    organization = db.relationship("Organization", back_populates="users")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -102,6 +137,12 @@ class PatientProfile(db.Model):
         db.ForeignKey("users.id", ondelete="SET NULL"),
         nullable=True,
     )
+    organization_id = db.Column(
+        db.Integer,
+        db.ForeignKey("organizations.id", ondelete="RESTRICT"),
+        nullable=True,
+        index=True,
+    )
     display_name = db.Column(db.String(120), nullable=False)
     date_of_birth_demo = db.Column(db.Date, nullable=True)
     created_at = db.Column(
@@ -120,6 +161,7 @@ class PatientProfile(db.Model):
         foreign_keys=[assigned_clinician_id],
         back_populates="assigned_patients",
     )
+    organization = db.relationship("Organization", back_populates="patient_profiles")
     glucose_readings = db.relationship(
         "GlucoseReading",
         back_populates="patient",

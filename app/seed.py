@@ -1,9 +1,11 @@
+"""Create repeatable fictional roles, organizations, and demonstration accounts."""
+
 import secrets
 
 import click
 
 from app import db
-from app.models import PatientProfile, Role, User
+from app.models import Organization, PatientProfile, Role, User
 
 
 DEMO_ACCOUNTS = {
@@ -19,6 +21,20 @@ def _get_or_create_role(role_name):
         role = Role(name=role_name)
         db.session.add(role)
     return role
+
+
+def _get_or_create_organization():
+    organization = Organization.query.filter_by(
+        name="AfyaGlyco Demo Clinic"
+    ).first()
+    if organization is None:
+        organization = Organization(
+            name="AfyaGlyco Demo Clinic",
+            organization_type="clinic",
+        )
+        db.session.add(organization)
+    organization.is_active = True
+    return organization
 
 
 def _get_or_create_user(email, role, password, reset_password=False):
@@ -49,6 +65,7 @@ def register_seed_command(app):
         roles = {
             name: _get_or_create_role(name) for name in DEMO_ACCOUNTS
         }
+        organization = _get_or_create_organization()
         users = {}
         created_accounts = []
         for role_name, email in DEMO_ACCOUNTS.items():
@@ -62,6 +79,10 @@ def register_seed_command(app):
             if created:
                 created_accounts.append(email)
 
+        users["clinician"].organization = organization
+        users["clinician"].display_name = users["clinician"].display_name or "Demo Clinician"
+        users["patient"].organization = organization
+
         patient_profile = PatientProfile.query.filter_by(
             user_id=users["patient"].id
         ).first()
@@ -69,11 +90,13 @@ def register_seed_command(app):
             patient_profile = PatientProfile(
                 user=users["patient"],
                 assigned_clinician=users["clinician"],
+                organization=organization,
                 display_name="Demo Patient",
             )
             db.session.add(patient_profile)
         else:
             patient_profile.assigned_clinician = users["clinician"]
+            patient_profile.organization = organization
 
         db.session.commit()
 

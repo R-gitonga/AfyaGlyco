@@ -1,8 +1,15 @@
+"""Validated forms for clinician review and patient-register workflows."""
+
 from flask_wtf import FlaskForm
-from wtforms import BooleanField, StringField, SubmitField, TextAreaField
+from wtforms import BooleanField, PasswordField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length
 
-from app.business_rules import MEDICATION_LABEL_MAX_LENGTH, REMINDER_SCHEDULE_MAX_LENGTH
+from app.business_rules import (
+    ACCOUNT_DISPLAY_NAME_MAX_LENGTH,
+    ACCOUNT_PASSWORD_MIN_LENGTH,
+    MEDICATION_LABEL_MAX_LENGTH,
+    REMINDER_SCHEDULE_MAX_LENGTH,
+)
 
 
 class ClinicianNoteForm(FlaskForm):
@@ -30,3 +37,32 @@ class MedicationReminderForm(FlaskForm):
 
 class DeleteReminderForm(FlaskForm):
     submit = SubmitField("Delete reminder")
+
+
+class PatientRegistrationForm(FlaskForm):
+    email = StringField("Email", validators=[DataRequired(), Length(max=255)])
+    display_name = StringField(
+        "Display name",
+        validators=[DataRequired(), Length(max=ACCOUNT_DISPLAY_NAME_MAX_LENGTH)],
+    )
+    password = PasswordField(
+        "Initial local password",
+        validators=[DataRequired(), Length(min=ACCOUNT_PASSWORD_MIN_LENGTH, max=255)],
+        description="Fictional demo account only; the password is hashed immediately.",
+    )
+    submit = SubmitField("Register patient")
+
+
+class ExistingPatientForm(FlaskForm):
+    patient_id = SelectField(
+        "Unassigned patient account",
+        choices=[],
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Add patient to register")
+
+    def set_patients(self, patients):
+        self.patient_id.choices = [
+            (str(patient.id), f"{patient.display_name} · {patient.user.email}")
+            for patient in patients
+        ]

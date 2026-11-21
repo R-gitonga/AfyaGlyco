@@ -9,6 +9,11 @@
     <p class="mt-3 max-w-2xl text-slate-600">Review the fictional patients assigned to you and store clinician-authored notes.</p>
   </div>
 
+  <div class="mb-6 flex flex-col gap-2 sm:flex-row">
+    <a class="inline-flex min-h-11 items-center justify-center rounded-lg bg-blue-700 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-800" href="{{ url_for('clinician.patient_register') }}">Open patient register</a>
+    <a class="inline-flex min-h-11 items-center justify-center rounded-lg border border-blue-300 px-4 py-3 text-sm font-semibold text-blue-800 hover:bg-blue-50" href="{{ url_for('clinician.register_patient') }}">Register patient</a>
+  </div>
+
   {% if patients %}
     <div class="grid gap-4 md:grid-cols-2">
       {% for patient in patients %}

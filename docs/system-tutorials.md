@@ -20,6 +20,8 @@ Sprint 07 implements the safe medication-reminder and medication-event workflow.
 
 Sprint 08 implements read-only derived reports for patients and assigned clinicians. The reports aggregate already-authorized fictional records, offer an optional validated date range, and show transparent counts and a recorded-value trend. Reports are not stored records and have no create, update, or delete operations.
 
+Sprint 09 implements organization-scoped account provisioning and patient registers. Administrators can manage fictional clinics or hospitals and provision clinician accounts. Clinicians can register fictional patients or attach existing unassigned patients in their organization. Patient assignment metadata is kept separate from health-record access, and administrators still do not receive health-record or report access by default.
+
 ## How to read the model
 
 - A user action starts a flow.
@@ -32,7 +34,7 @@ Sprint 08 implements read-only derived reports for patients and assigned clinici
 
 ## 1. System context
 
-The platform has three human roles. All roles use the browser interface, but each role sees only the areas permitted by its authorization.
+The platform has three human roles. All roles use the browser interface, but each role sees only the areas permitted by its authorization. Organizations provide the administrative boundary for clinician membership and patient registration; the application supports one organization per clinician or patient in this demonstration slice.
 
 ```mermaid
 flowchart LR
@@ -42,12 +44,12 @@ flowchart LR
 
     UI[Responsive web interface\nFlask and Jinja pages\nTailwind CSS]
     App[Flask application\nAuthentication\nAuthorization\nValidation\nBusiness rules]
-    DB[(PostgreSQL\nUsers and roles\nPatient records\nClinician notes\nAudit events)]
+    DB[(PostgreSQL\nOrganizations\nUsers and roles\nPatient records\nClinician notes\nAudit events)]
     Charts[Charts and summaries\nChart.js]
 
     Patient -->|Sign in and record self-monitoring data| UI
     Clinician -->|Review assigned patients and add notes| UI
-    Admin -->|Manage users, roles, and demo data| UI
+    Admin -->|Manage organizations, users, assignments, and demo data| UI
     UI --> App
     App -->|Read and write authorized records| DB
     App --> Charts
@@ -72,6 +74,8 @@ flowchart LR
     RoleCheck -->|Missing role| Forbidden[403 forbidden response]
 ```
 
+After authentication, organization and assignment checks are applied where a workflow needs them. An inactive organization blocks new clinician registrations, patient registrations, and assignment changes; it does not automatically expose or alter existing health records.
+
 ## 2. Patient data-flow tutorial
 
 This is the primary student demonstration flow. It shows how a patient creates a record and later sees it in a dashboard.
@@ -83,6 +87,8 @@ The meal and exercise branches are implemented in Sprint 06. A patient can creat
 The medication branch is implemented in Sprint 07. An assigned clinician creates a fictional medication label and schedule description for a patient. The patient can read that reminder and can create, view, edit, or delete an event with a controlled status, timestamp, and optional context. The event is only the patient's recorded input; it is not converted into an adherence score or clinical conclusion.
 
 The reporting branch is implemented in Sprint 08. A patient can open a read-only summary of their own records, and an assigned clinician can open the corresponding summary for that patient. Both pages can accept a start and end date, but the report only counts and displays the records that the current role is already permitted to read. Empty periods are presented as empty data, not as a health conclusion.
+
+The registration branch is implemented in Sprint 09. An administrator creates or updates a fictional organization and provisions a clinician account in that organization. The clinician then sees only their own register and may either create a fictional patient registration or attach an existing unassigned patient from the same organization. A clinician cannot take over an existing assignment or cross an organization boundary. A patient can view their own organization and assigned clinician summary, but cannot edit either relationship.
 
 ```mermaid
 flowchart TD
@@ -101,8 +107,10 @@ flowchart TD
     Choose --> Exercise[Log exercise]
     Choose --> Medication[Record medication event or view reminder]
     Choose --> Report[View read-only report]
+    Choose --> Profile[View read-only profile]
     Report --> ReportFilters[Validate optional date range]
     ReportFilters --> ReportSummary[Display authorized read-only summary]
+    Profile --> ProfileSummary[Display own organization and assigned clinician metadata]
 
     Glucose --> Form[Validate submitted form]
     Meal --> Form
@@ -182,9 +190,9 @@ This diagram describes the expected separation of responsibilities in the Flask 
 flowchart TB
     Browser[Browser]
     Routes[Flask routes and blueprints\nReceive requests and choose responses]
-    PatientRoutes[Patient blueprint\nDashboard, self-monitoring, reminder read, event CRUD, and report routes]
-    ClinicianRoutes[Clinician blueprint\nAssigned review, reminder CRUD, note, and report routes]
-    AdminRoutes[Admin blueprint\nUser status routes]
+    PatientRoutes[Patient blueprint\nDashboard, self-monitoring, profile, reminder read, event CRUD, and report routes]
+    ClinicianRoutes[Clinician blueprint\nPatient register, assigned review, reminder CRUD, note, and report routes]
+    AdminRoutes[Admin blueprint\nOrganization, clinician, assignment, and user status routes]
     Auth[Authentication and authorization\nIdentity, sessions, role checks]
     Rules[Business rules\nPermissions, ownership, shared constraints]
     Reporting[Derived reporting\nAuthorized queries and transparent summaries]
@@ -230,6 +238,8 @@ The initial data model should remain understandable for a student project.
 
 ```mermaid
 erDiagram
+    ORGANIZATION ||--o{ USER : contains
+    ORGANIZATION ||--o{ PATIENT_PROFILE : scopes
     USER ||--o| PATIENT_PROFILE : has
     USER ||--o{ ROLE_ASSIGNMENT : receives
     ROLE ||--o{ ROLE_ASSIGNMENT : defines
@@ -248,7 +258,9 @@ erDiagram
         int id PK
         string email
         string password_hash
+        string display_name
         boolean is_active
+        int organization_id FK
     }
     ROLE {
         int id PK
@@ -262,6 +274,7 @@ erDiagram
         int id PK
         int user_id FK
         int assigned_clinician_id FK
+        int organization_id FK
         string display_name
         date date_of_birth_demo
         datetime created_at
@@ -326,6 +339,8 @@ The current implementation also uses concrete `MedicationReminder` and `Medicati
 
 Sprint 08 adds no report table. `app/reporting.py` derives a read-only summary from the existing records after the route verifies patient ownership or clinician assignment. Patients and assigned clinicians have read access to the derived report; administrators have no health-summary access by default. The report's create, update, and delete operations are intentionally not applicable.
 
+Sprint 09 adds the concrete `Organization` record and organization foreign keys on users and patient profiles. Administrators have complete applicable management operations for organization metadata except hard delete, and can provision or deactivate clinician accounts. Clinicians can create and read their own patient register, register a new patient, or attach an existing unassigned patient in the same active organization. Administrators can transfer or unassign assignment metadata without reading health records. Patient profile metadata is read-only from the patient interface. These boundaries are enforced in route handlers and the centralized rules module.
+
 ## 7. Student demonstration tutorial
 
 ### Prepare the demonstration
@@ -335,6 +350,17 @@ Sprint 08 adds no report table. `app/reporting.py` derives a read-only summary f
 3. Run database migrations.
 4. Run `flask --app run:app seed-demo --password "choose-a-local-demo-password"` to prepare fictional accounts.
 5. Open the application in a browser.
+
+### Demonstrate organization and registration management
+
+1. Sign in with the administrator account.
+2. Open Organizations and create or edit a fictional clinic or hospital; demonstrate activation or deactivation rather than deletion.
+3. Open Clinicians and provision a clinician account in the active organization; confirm that the password is never displayed after submission.
+4. Open Patients to review assignment metadata only, then demonstrate transfer or unassignment without opening a health record.
+5. Sign out and sign in with the newly provisioned clinician account.
+6. Open the patient register and register a new fictional patient, or attach an existing unassigned patient from the same organization.
+7. Confirm that the register contains only the clinician's assigned patients and that an assigned or cross-organization patient cannot be attached.
+8. Sign in as the patient and open Profile to show the read-only organization and assigned-clinician summary.
 
 ### Demonstrate the patient role
 
@@ -404,4 +430,5 @@ For each significant change:
 | 2026-11-18 | Added a central business-rules contract, completed glucose CRUD, and added patient CRUD for meal and exercise records with assigned-clinician read-only review | Sections 1, 2, 3, 5, and 6 | Extend self-monitoring context while preserving explicit ownership and non-clinical prototype boundaries |
 | 2026-11-19 | Added fictional clinician-configured medication reminders, patient medication-event CRUD, assigned-clinician read-only event review, migration, route inventory, and boundary tests | Sections 1, 2, 3, 5, 6, and 7 | Cover the medication-scheduling requirement without adding prescriptions, dosage guidance, adherence inference, or external notifications |
 | 2026-11-19 | Added read-only derived patient and assigned-clinician reports with validated date filters, transparent counts, and recorded-value trends | Sections 1, 2, 3, 5, 6, and 7 | Cover the basic reports and progress-summary scope without persisting duplicate data or introducing clinical interpretation |
+| 2026-11-19 | Added organization-scoped organization, clinician-provisioning, patient-registration, patient-assignment, and read-only patient-profile workflows | Sections 1, 1a, 2, 4, 5, 6, and 7 | Make the fictional demonstration accounts and patient registers manageable while preserving organization boundaries and health-record privacy |
 

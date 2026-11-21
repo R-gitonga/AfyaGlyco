@@ -14,6 +14,7 @@ This folder contains the planning notes, decisions, progress updates, and review
 | 06 | Business rules and self-monitoring CRUD | A patient can manage glucose, meal, and exercise entries, and an assigned clinician can view them read-only |
 | 07 | Medication reminders and events | A clinician can configure fictional reminders and a patient can record medication events without dosage guidance |
 | 08 | Read-only reports and trend summaries | Patients and assigned clinicians can view transparent summaries of authorized fictional records |
+| 09 | Organizations, clinician onboarding, and patient registers | Administrators create fictional organizations and clinicians; clinicians build organization-scoped patient registers |
 
 Reports and external-integration features remain post-MVP extensions. Every sprint must preserve the mobile-responsive requirement in `agents.md`.
 

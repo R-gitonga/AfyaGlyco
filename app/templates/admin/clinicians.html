@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Clinicians · AfyaGlyco{% endblock %}
+
+{% block content %}
+  <div class="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <a class="text-sm font-semibold text-violet-700 hover:text-violet-900" href="{{ url_for('admin.dashboard') }}">← Back to administrator dashboard</a>
+      <p class="mt-5 text-sm font-semibold uppercase tracking-wide text-violet-700">Administrator area</p>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Clinician accounts</h1>
+      <p class="mt-3 max-w-2xl text-slate-600">Register fictional clinicians and manage their organization membership and account status.</p>
+    </div>
+    <a class="inline-flex min-h-11 items-center justify-center rounded-lg bg-violet-700 px-4 py-3 text-sm font-semibold text-white hover:bg-violet-800" href="{{ url_for('admin.new_clinician') }}">Register clinician</a>
+  </div>
+
+  {% if clinicians %}
+    <div class="grid gap-4 md:grid-cols-2">
+      {% for clinician in clinicians %}
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="min-w-0">
+              <h2 class="truncate font-semibold text-slate-950">{{ clinician.display_name or clinician.email }}</h2>
+              <p class="mt-1 break-all text-sm text-slate-600">{{ clinician.email }}</p>
+              <p class="mt-2 text-sm text-slate-500">{{ clinician.organization.name if clinician.organization else 'No organization' }}</p>
+            </div>
+            <span class="rounded-full px-3 py-1 text-xs font-semibold {{ 'bg-emerald-100 text-emerald-800' if clinician.is_active else 'bg-slate-200 text-slate-700' }}">{{ 'Active' if clinician.is_active else 'Inactive' }}</span>
+          </div>
+          <div class="mt-5 flex flex-wrap gap-3 text-sm">
+            <a class="font-semibold text-violet-700 hover:text-violet-900" href="{{ url_for('admin.edit_clinician', user_id=clinician.id) }}">Edit</a>
+            <form method="post" action="{{ url_for('admin.update_clinician_status', user_id=clinician.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="font-semibold {{ 'text-rose-700 hover:text-rose-900' if clinician.is_active else 'text-emerald-700 hover:text-emerald-900' }}" type="submit">{{ 'Deactivate' if clinician.is_active else 'Activate' }}</button>
+            </form>
+          </div>
+        </section>
+      {% endfor %}
+    </div>
+  {% else %}
+    <section class="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
+      <h2 class="font-semibold text-slate-950">No clinician accounts yet</h2>
+      <p class="mt-2 text-sm text-slate-600">Register a fictional clinician after creating an organization.</p>
+    </section>
+  {% endif %}
+{% endblock %}
