@@ -9,6 +9,5 @@ instance/
 dist/
 build/
 node_modules/
-app/static/css/output.css
 *.log
 
