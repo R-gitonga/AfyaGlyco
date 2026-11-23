@@ -7,7 +7,7 @@
     <div>
       <p class="text-sm font-semibold uppercase tracking-wide text-emerald-700">Patient area</p>
       <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Welcome, {{ profile.display_name }}</h1>
-      <p class="mt-3 max-w-2xl text-slate-600">Record fictional self-monitoring entries and review your own history.</p>
+      <p class="mt-3 max-w-2xl text-slate-600">Record self-monitoring entries and review your own history.</p>
     </div>
     <div class="flex flex-col gap-2 sm:flex-row">
       <a class="inline-flex min-h-11 items-center justify-center rounded-lg border border-emerald-300 px-4 py-3 text-center text-sm font-semibold text-emerald-800 hover:bg-emerald-50" href="{{ url_for('patient.report_summary') }}">View report</a>
@@ -42,7 +42,7 @@
       {% else %}
         <div class="mt-5 rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
           <h3 class="font-semibold text-slate-950">No readings yet</h3>
-          <p class="mt-2 text-sm text-slate-600">Add your first fictional reading to begin your personal history.</p>
+          <p class="mt-2 text-sm text-slate-600">Add your first reading to begin your personal history.</p>
         </div>
       {% endif %}
     </section>
@@ -71,7 +71,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="font-semibold text-slate-950">Recent meals</h2>
-          <p class="mt-1 text-sm text-slate-600">{{ meal_count }} recorded fictional meal{% if meal_count != 1 %}s{% endif %}.</p>
+          <p class="mt-1 text-sm text-slate-600">{{ meal_count }} recorded meal{% if meal_count != 1 %}s{% endif %}.</p>
         </div>
         <a class="text-sm font-semibold text-emerald-700 hover:text-emerald-900" href="{{ url_for('patient.meal_history') }}">View meals</a>
       </div>
@@ -96,7 +96,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="font-semibold text-slate-950">Recent exercise</h2>
-          <p class="mt-1 text-sm text-slate-600">{{ exercise_count }} recorded fictional entr{% if exercise_count != 1 %}ies{% else %}y{% endif %}.</p>
+          <p class="mt-1 text-sm text-slate-600">{{ exercise_count }} recorded entr{% if exercise_count != 1 %}ies{% else %}y{% endif %}.</p>
         </div>
         <a class="text-sm font-semibold text-emerald-700 hover:text-emerald-900" href="{{ url_for('patient.exercise_history') }}">View exercise</a>
       </div>
@@ -123,7 +123,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="font-semibold text-slate-950">Medication reminders</h2>
-          <p class="mt-1 text-sm text-slate-600">{{ reminder_count }} fictional reminder{% if reminder_count != 1 %}s{% endif %} configured for you.</p>
+          <p class="mt-1 text-sm text-slate-600">{{ reminder_count }} reminder{% if reminder_count != 1 %}s{% endif %} configured for you.</p>
         </div>
         <a class="text-sm font-semibold text-emerald-700 hover:text-emerald-900" href="{{ url_for('patient.reminder_history') }}">View reminders</a>
       </div>
@@ -148,7 +148,7 @@
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 class="font-semibold text-slate-950">Medication events</h2>
-          <p class="mt-1 text-sm text-slate-600">{{ medication_event_count }} fictional event{% if medication_event_count != 1 %}s{% endif %} recorded.</p>
+          <p class="mt-1 text-sm text-slate-600">{{ medication_event_count }} event{% if medication_event_count != 1 %}s{% endif %} recorded.</p>
         </div>
         <a class="text-sm font-semibold text-emerald-700 hover:text-emerald-900" href="{{ url_for('patient.medication_event_history') }}">View events</a>
       </div>
@@ -189,7 +189,7 @@
     </section>
     <section class="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm">
       <h2 class="font-semibold text-amber-950">Demo boundary</h2>
-      <p class="mt-2 text-sm leading-6 text-amber-900">All content is fictional and for academic demonstration only.</p>
+      <p class="mt-2 text-sm leading-6 text-amber-900">All content is for academic demonstration only.</p>
     </section>
   </div>
 {% endblock %}

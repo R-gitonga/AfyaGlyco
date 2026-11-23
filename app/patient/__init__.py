@@ -207,7 +207,7 @@ def create_reading():
     )
     db.session.add(reading)
     db.session.commit()
-    flash("Your fictional glucose reading was recorded.", "success")
+    flash("Your glucose reading was recorded.", "success")
     return redirect(url_for("patient.dashboard"))
 
 
@@ -274,7 +274,7 @@ def edit_reading(reading_id):
         reading.recorded_at = normalize_recorded_at(form.recorded_at.data)
         reading.reading_context = form.reading_context.data.strip() or None
         db.session.commit()
-        flash("Your fictional glucose reading was updated.", "success")
+        flash("Your glucose reading was updated.", "success")
         return redirect(url_for("patient.reading_detail", reading_id=reading.id))
     return render_template(
         "patient/reading_form.html",
@@ -300,7 +300,7 @@ def delete_reading(reading_id):
         abort(400)
     db.session.delete(reading)
     db.session.commit()
-    flash("The fictional glucose reading was deleted.", "success")
+    flash("The glucose reading was deleted.", "success")
     return redirect(url_for("patient.reading_history"))
 
 
@@ -357,7 +357,7 @@ def create_meal():
     )
     db.session.add(meal)
     db.session.commit()
-    flash("Your fictional meal entry was recorded.", "success")
+    flash("Your meal entry was recorded.", "success")
     return redirect(url_for("patient.meal_history"))
 
 
@@ -401,7 +401,7 @@ def edit_meal(meal_id):
         meal.description = form.description.data.strip()
         meal.recorded_at = normalize_recorded_at(form.recorded_at.data)
         db.session.commit()
-        flash("Your fictional meal entry was updated.", "success")
+        flash("Your meal entry was updated.", "success")
         return redirect(url_for("patient.meal_detail", meal_id=meal.id))
     return render_template(
         "patient/meal_form.html",
@@ -427,7 +427,7 @@ def delete_meal(meal_id):
         abort(400)
     db.session.delete(meal)
     db.session.commit()
-    flash("The fictional meal entry was deleted.", "success")
+    flash("The meal entry was deleted.", "success")
     return redirect(url_for("patient.meal_history"))
 
 
@@ -481,7 +481,7 @@ def create_exercise():
     )
     db.session.add(exercise)
     db.session.commit()
-    flash("Your fictional exercise entry was recorded.", "success")
+    flash("Your exercise entry was recorded.", "success")
     return redirect(url_for("patient.exercise_history"))
 
 
@@ -525,7 +525,7 @@ def edit_exercise(exercise_id):
         exercise.duration_minutes = form.duration_minutes.data
         exercise.recorded_at = normalize_recorded_at(form.recorded_at.data)
         db.session.commit()
-        flash("Your fictional exercise entry was updated.", "success")
+        flash("Your exercise entry was updated.", "success")
         return redirect(
             url_for("patient.exercise_detail", exercise_id=exercise.id)
         )
@@ -553,7 +553,7 @@ def delete_exercise(exercise_id):
         abort(400)
     db.session.delete(exercise)
     db.session.commit()
-    flash("The fictional exercise entry was deleted.", "success")
+    flash("The exercise entry was deleted.", "success")
     return redirect(url_for("patient.exercise_history"))
 
 
@@ -662,7 +662,7 @@ def create_medication_event():
     )
     db.session.add(event)
     db.session.commit()
-    flash("Your fictional medication event was recorded.", "success")
+    flash("Your medication event was recorded.", "success")
     return redirect(url_for("patient.medication_event_history"))
 
 
@@ -707,7 +707,7 @@ def edit_medication_event(event_id):
         event.recorded_at = normalize_recorded_at(form.recorded_at.data)
         event.context = form.context.data.strip() or None
         db.session.commit()
-        flash("Your fictional medication event was updated.", "success")
+        flash("Your medication event was updated.", "success")
         return redirect(
             url_for("patient.medication_event_detail", event_id=event.id)
         )
@@ -735,5 +735,5 @@ def delete_medication_event(event_id):
         abort(400)
     db.session.delete(event)
     db.session.commit()
-    flash("The fictional medication event was deleted.", "success")
+    flash("The medication event was deleted.", "success")
     return redirect(url_for("patient.medication_event_history"))

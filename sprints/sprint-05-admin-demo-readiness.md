@@ -2,15 +2,15 @@
 
 ## Sprint goal
 
-Give the administrator a small, safe interface for managing fictional account status and finish the responsive presentation surface for the board demonstration.
+Give the administrator a small, safe interface for managing account status and finish the responsive presentation surface for the board demonstration.
 
 ## Scope and user stories
 
-- As an administrator, I can view fictional users, their displayed roles, and account status.
-- As an administrator, I can activate or deactivate another fictional account.
+- As an administrator, I can view users, their displayed roles, and account status.
+- As an administrator, I can activate or deactivate another account.
 - As an administrator, I cannot deactivate my own administrator account from the dashboard.
 - As a patient, clinician, or administrator, I can navigate to my role area from a responsive navigation bar.
-- As a presenter, I can rehearse the patient-to-clinician workflow with seeded fictional accounts.
+- As a presenter, I can rehearse the patient-to-clinician workflow with seeded accounts.
 
 ## Planned tasks
 
@@ -26,13 +26,13 @@ Give the administrator a small, safe interface for managing fictional account st
 - The Sprint 5 administrator surface manages account status only; role assignment remains visible but is not editable from this small MVP screen.
 - A status action targets a specific user ID and is restricted to administrator-role users.
 - Deactivating the current administrator is rejected to preserve access to the demonstration system.
-- Only fictional seeded accounts are intended for this workflow.
+- Only seeded accounts are intended for this workflow.
 - The seed command remains the preparation mechanism for demo data; this sprint does not add a destructive reset operation.
 
 ## Completed work
 
 - Added administrator user listing with role and active/inactive status.
-- Added activate/deactivate action for other fictional accounts.
+- Added activate/deactivate action for other accounts.
 - Added self-lockout protection and CSRF-protected status forms.
 - Added responsive role navigation to the shared layout.
 - Updated README routes and system tutorial diagrams.
@@ -42,7 +42,7 @@ Give the administrator a small, safe interface for managing fictional account st
 - Fifteen tests pass using isolated SQLite data.
 - Tailwind CSS must be rebuilt after template changes.
 - PostgreSQL-backed route discovery must include the administrator status route.
-- Manual rehearsal should use only the fictional seed accounts.
+- Manual rehearsal should use only the seed accounts.
 
 ## Open issues or blockers
 

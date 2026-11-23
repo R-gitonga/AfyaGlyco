@@ -174,7 +174,7 @@ def test_patient_cannot_access_other_role_dashboards():
     assert client.get("/admin").status_code == 403
 
 
-def test_seed_demo_command_creates_fictional_accounts():
+def test_seed_demo_command_creates_demo_accounts():
     app = create_app(
         {
             "TESTING": True,
@@ -190,7 +190,7 @@ def test_seed_demo_command_creates_fictional_accounts():
     )
 
     assert result.exit_code == 0
-    assert "Fictional demo accounts are ready" in result.output
+    assert "demo accounts are ready" in result.output
     with app.app_context():
         patient = User.query.filter_by(email="patient@example.test").one()
         assert patient.check_password("demo-password")

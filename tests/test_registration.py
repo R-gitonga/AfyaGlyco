@@ -20,11 +20,11 @@ def make_registration_app():
         clinician_role = Role(name="clinician")
         administrator_role = Role(name="administrator")
         organization = Organization(
-            name="Fictional Demo Clinic",
+            name="Demo Clinic",
             organization_type="clinic",
         )
         other_organization = Organization(
-            name="Fictional Demo Hospital",
+            name="Demo Hospital",
             organization_type="hospital",
         )
         admin = User(email="admin@example.test")
@@ -104,18 +104,18 @@ def test_administrator_can_manage_organizations_and_clinician_accounts():
     assert client.get("/admin/organizations").status_code == 200
     organization_response = client.post(
         "/admin/organizations/new",
-        data={"name": "New Fictional Hospital", "organization_type": "hospital"},
+        data={"name": "New Hospital", "organization_type": "hospital"},
     )
     assert organization_response.status_code == 302
     with app.app_context():
         organization = Organization.query.filter_by(
-            name="New Fictional Hospital"
+            name="New Hospital"
         ).one()
         organization_id = organization.id
 
     edit_response = client.post(
         f"/admin/organizations/{organization_id}/edit",
-        data={"name": "Updated Fictional Hospital", "organization_type": "hospital"},
+        data={"name": "Updated Hospital", "organization_type": "hospital"},
     )
     assert edit_response.status_code == 302
     status_response = client.post(
@@ -125,7 +125,7 @@ def test_administrator_can_manage_organizations_and_clinician_accounts():
     with app.app_context():
         assert db.session.get(Organization, organization_id).is_active is False
         active_organization_id = Organization.query.filter_by(
-            name="Fictional Demo Clinic"
+            name="Demo Clinic"
         ).one().id
     create_clinician = client.post(
         "/admin/clinicians/new",
@@ -143,7 +143,7 @@ def test_administrator_can_manage_organizations_and_clinician_accounts():
         assert clinician.has_role("clinician")
         assert clinician.check_password("new-clinician-password")
         assert clinician.password_hash != "new-clinician-password"
-        assert clinician.organization.name == "Fictional Demo Clinic"
+        assert clinician.organization.name == "Demo Clinic"
 
     edit_clinician = client.post(
         f"/admin/clinicians/{clinician_id}/edit",
@@ -181,7 +181,7 @@ def test_clinician_can_register_new_patient_and_add_existing_unassigned_patient(
         assert patient.check_password("new-patient-password")
         assert patient.password_hash != "new-patient-password"
         assert profile.assigned_clinician.email == "clinician@example.test"
-        assert profile.organization.name == "Fictional Demo Clinic"
+        assert profile.organization.name == "Demo Clinic"
 
         unassigned = PatientProfile.query.filter_by(
             display_name="Unassigned Patient"
@@ -270,6 +270,6 @@ def test_patient_can_read_own_profile_and_cannot_change_assignment():
     login(client, "unassigned@example.test", "patient-password")
     response = client.get("/patient/profile")
     assert response.status_code == 200
-    assert b"Fictional Demo Clinic" in response.data
+    assert b"Demo Clinic" in response.data
     assert b"Demo Clinician" in response.data
     assert client.post("/patient/profile").status_code == 405

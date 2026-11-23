@@ -2,16 +2,16 @@
 
 ## Sprint goal
 
-Allow fictional seeded users to sign in and reach only the dashboard associated with their assigned role.
+Allow seeded users to sign in and reach only the dashboard associated with their assigned role.
 
 ## Scope and user stories
 
-- As a fictional patient, I can sign in and reach the patient dashboard.
-- As a fictional clinician, I can sign in and reach the clinician dashboard.
-- As a fictional administrator, I can sign in and reach the administrator dashboard.
+- As a patient, I can sign in and reach the patient dashboard.
+- As a clinician, I can sign in and reach the clinician dashboard.
+- As an administrator, I can sign in and reach the administrator dashboard.
 - As an unauthenticated visitor, I am redirected to sign in before accessing protected pages.
 - As a signed-in user, I cannot access another role's dashboard.
-- As a demonstrator, I can create repeatable fictional accounts with a CLI seed command.
+- As a demonstrator, I can create repeatable accounts with a CLI seed command.
 
 ## Planned tasks
 
@@ -19,7 +19,7 @@ Allow fictional seeded users to sign in and reach only the dashboard associated 
 - Add CSRF protection for browser forms and state-changing requests.
 - Add login and logout routes with generic authentication errors.
 - Add server-side role-protection decorators.
-- Add fictional patient, clinician, and administrator dashboards.
+- Add patient, clinician, and administrator dashboards.
 - Add a `seed-demo` command without committing passwords or real data.
 - Update the README route inventory and setup instructions.
 - Keep all pages mobile-first and responsive.
@@ -27,7 +27,7 @@ Allow fictional seeded users to sign in and reach only the dashboard associated 
 ## Design or security decisions
 
 - Passwords are stored only as hashes using Werkzeug's password-hashing helpers.
-- Demo accounts use `example.test` email addresses and fictional profile data.
+- Demo accounts use `example.test` email addresses and profile data.
 - The seed command accepts a local password through `--password` or `DEMO_SEED_PASSWORD`; otherwise it generates a password for newly created accounts and prints it once.
 - Role authorization is enforced in route decorators, not only by hiding navigation links.
 - Login errors are intentionally generic so the interface does not reveal whether an email exists.
@@ -36,7 +36,7 @@ Allow fictional seeded users to sign in and reach only the dashboard associated 
 
 - Added login, logout, session loading, CSRF protection, and role checks.
 - Added responsive patient, clinician, and administrator landing pages.
-- Added the fictional demo-account seed command.
+- Added the demo-account seed command.
 - Added route inventory and seed/test setup documentation.
 
 ## Testing and verification

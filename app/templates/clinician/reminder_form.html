@@ -7,7 +7,7 @@
     <a class="text-sm font-semibold text-blue-700 hover:text-blue-900" href="{{ url_for('clinician.patient_review', patient_id=patient.id) }}">← Back to patient review</a>
     <div class="mb-6 mt-5">
       <p class="text-sm font-semibold uppercase tracking-wide text-blue-700">Assigned patient reminder</p>
-      <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">{{ 'Edit fictional reminder' if editing else 'Add fictional reminder' }}</h1>
+      <h1 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">{{ 'Edit reminder' if editing else 'Add reminder' }}</h1>
       <p class="mt-3 text-sm leading-6 text-slate-600">Configure a demonstration schedule for {{ patient.display_name }}. Do not enter dosage or treatment instructions.</p>
     </div>
 
@@ -15,7 +15,7 @@
       {{ form.hidden_tag() }}
       <div>
         {{ form.medication_label_demo.label(class="mb-2 block text-sm font-medium text-slate-700") }}
-        {{ form.medication_label_demo(class="w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none ring-blue-500 focus:ring-2", maxlength="120", placeholder="Fictional medication label") }}
+        {{ form.medication_label_demo(class="w-full rounded-lg border border-slate-300 px-3 py-3 text-base outline-none ring-blue-500 focus:ring-2", maxlength="120", placeholder="medication label") }}
         <p class="mt-1 text-xs text-slate-500">This is a display label only, not a prescription or dosage field.</p>
         {% for error in form.medication_label_demo.errors %}<p class="mt-1 text-sm text-rose-700">{{ error }}</p>{% endfor %}
       </div>

@@ -178,7 +178,7 @@ def test_patient_has_complete_crud_for_own_meal():
         "/patient/meals",
         data={
             "meal_type": "breakfast",
-            "description": "Fictional breakfast entry",
+            "description": "breakfast entry",
             "recorded_at": "2026-11-06T08:00",
         },
     )
@@ -191,18 +191,18 @@ def test_patient_has_complete_crud_for_own_meal():
 
     detail = client.get(f"/patient/meals/{meal_id}")
     assert detail.status_code == 200
-    assert b"Fictional breakfast entry" in detail.data
+    assert b"breakfast entry" in detail.data
 
     update_response = client.post(
         f"/patient/meals/{meal_id}/edit",
         data={
             "meal_type": "lunch",
-            "description": "Updated fictional lunch entry",
+            "description": "Updated lunch entry",
             "recorded_at": "2026-11-06T12:00",
         },
     )
     assert update_response.status_code == 302
-    assert b"Updated fictional lunch entry" in client.get(
+    assert b"Updated lunch entry" in client.get(
         f"/patient/meals/{meal_id}"
     ).data
 
@@ -221,7 +221,7 @@ def test_patient_has_complete_crud_for_own_exercise():
     create_response = client.post(
         "/patient/exercise",
         data={
-            "activity_type": "Fictional walking",
+            "activity_type": "walking",
             "duration_minutes": "30",
             "recorded_at": "2026-11-06T17:00",
         },
@@ -234,18 +234,18 @@ def test_patient_has_complete_crud_for_own_exercise():
 
     detail = client.get(f"/patient/exercise/{exercise_id}")
     assert detail.status_code == 200
-    assert b"Fictional walking" in detail.data
+    assert b"walking" in detail.data
 
     update_response = client.post(
         f"/patient/exercise/{exercise_id}/edit",
         data={
-            "activity_type": "Updated fictional cycling",
+            "activity_type": "Updated cycling",
             "duration_minutes": "45",
             "recorded_at": "2026-11-06T18:00",
         },
     )
     assert update_response.status_code == 302
-    assert b"Updated fictional cycling" in client.get(
+    assert b"Updated cycling" in client.get(
         f"/patient/exercise/{exercise_id}"
     ).data
 
@@ -292,12 +292,12 @@ def test_patient_cannot_access_another_patients_meal_or_exercise():
         meal = MealLog(
             patient=other_profile,
             meal_type="dinner",
-            description="Other patient's fictional meal",
+            description="Other patient's meal",
             recorded_at=datetime(2026, 11, 6, 19, 0, tzinfo=timezone.utc),
         )
         exercise = ExerciseLog(
             patient=other_profile,
-            activity_type="Other patient's fictional exercise",
+            activity_type="Other patient's exercise",
             duration_minutes=20,
             recorded_at=datetime(2026, 11, 6, 18, 0, tzinfo=timezone.utc),
         )

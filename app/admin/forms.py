@@ -39,7 +39,7 @@ class ClinicianRegistrationForm(FlaskForm):
     password = PasswordField(
         "Initial local password",
         validators=[DataRequired(), Length(min=ACCOUNT_PASSWORD_MIN_LENGTH, max=255)],
-        description="Fictional demo account only; the password is hashed immediately.",
+        description="demo account only; the password is hashed immediately.",
     )
     organization_id = SelectField(
         "Organization",

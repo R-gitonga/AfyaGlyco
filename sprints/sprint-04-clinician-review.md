@@ -2,11 +2,11 @@
 
 ## Sprint goal
 
-Allow a clinician to review only assigned fictional patients, see their recorded values, and add a clinician-authored note that the patient can view.
+Allow a clinician to review only assigned patients, see their recorded values, and add a clinician-authored note that the patient can view.
 
 ## Scope and user stories
 
-- As a clinician, I can see the fictional patient profiles assigned to me.
+- As a clinician, I can see the patient profiles assigned to me.
 - As an assigned clinician, I can review a patient's recorded readings and previous notes.
 - As an assigned clinician, I can add a factual follow-up note for the patient.
 - As a patient, I can see clinician-authored notes on my dashboard.
@@ -41,7 +41,7 @@ Allow a clinician to review only assigned fictional patients, see their recorded
 
 - Twelve tests pass using isolated SQLite data.
 - Tailwind CSS must be rebuilt after template changes.
-- Verify the clinician review routes with the configured PostgreSQL database and fictional seeded accounts.
+- Verify the clinician review routes with the configured PostgreSQL database and seeded accounts.
 
 ## Open issues or blockers
 
@@ -51,7 +51,7 @@ Allow a clinician to review only assigned fictional patients, see their recorded
 ## Carry-over work
 
 - Add administrator account/status management in Sprint 5.
-- Rehearse the end-to-end patient-to-clinician demonstration with deterministic fictional data.
+- Rehearse the end-to-end patient-to-clinician demonstration with deterministic data.
 
 ## Review notes and next steps
 

@@ -96,13 +96,13 @@ def test_assigned_clinician_has_complete_reminder_crud_and_patient_read_access()
         f"/clinician/patients/{patient_id}/reminders/{reminder_id}/edit",
         data={
             "medication_label_demo": "Updated demo reminder",
-            "schedule_description": "Updated fictional schedule",
+            "schedule_description": "Updated schedule",
         },
     )
     assert update_response.status_code == 302
     review = clinician_client.get(f"/clinician/patients/{patient_id}")
     assert b"Updated demo reminder" in review.data
-    assert b"Updated fictional schedule" in review.data
+    assert b"Updated schedule" in review.data
 
     patient_client = app.test_client()
     login(patient_client, "patient@example.test", "patient-password")
@@ -146,7 +146,7 @@ def test_patient_has_complete_medication_event_crud():
             "reminder_id": str(reminder_id),
             "status": "recorded",
             "recorded_at": "2026-11-19T08:30",
-            "context": "Fictional patient-entered context",
+            "context": "patient-entered context",
         },
     )
     assert create_response.status_code == 302
@@ -159,18 +159,18 @@ def test_patient_has_complete_medication_event_crud():
 
     detail = client.get(f"/patient/medication-events/{event_id}")
     assert detail.status_code == 200
-    assert b"Fictional patient-entered context" in detail.data
+    assert b"patient-entered context" in detail.data
     update_response = client.post(
         f"/patient/medication-events/{event_id}/edit",
         data={
             "reminder_id": "",
             "status": "skipped",
             "recorded_at": "2026-11-19T09:00",
-            "context": "Updated fictional context",
+            "context": "Updated context",
         },
     )
     assert update_response.status_code == 302
-    assert b"Updated fictional context" in client.get(
+    assert b"Updated context" in client.get(
         f"/patient/medication-events/{event_id}"
     ).data
 
@@ -219,14 +219,14 @@ def test_medication_records_enforce_ownership_and_assignment_boundaries():
             patient=other_profile,
             configuring_clinician=other_clinician,
             medication_label_demo="Other patient's reminder",
-            schedule_description="Other patient's fictional schedule",
+            schedule_description="Other patient's schedule",
         )
         event = MedicationEvent(
             patient=other_profile,
             reminder=reminder,
             status="recorded",
             recorded_at=datetime(2026, 11, 19, 8, 0, tzinfo=timezone.utc),
-            context="Other patient's fictional event",
+            context="Other patient's event",
         )
         db.session.add_all([reminder, event])
         db.session.commit()

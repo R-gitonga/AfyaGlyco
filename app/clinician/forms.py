@@ -24,7 +24,7 @@ class MedicationReminderForm(FlaskForm):
     medication_label_demo = StringField(
         "Medication label for demonstration",
         validators=[DataRequired(), Length(max=MEDICATION_LABEL_MAX_LENGTH)],
-        description="Use fictional or seeded content only; do not enter dosage instructions.",
+        description="Use seeded content only; do not enter dosage instructions.",
     )
     schedule_description = TextAreaField(
         "Schedule description",
@@ -48,7 +48,7 @@ class PatientRegistrationForm(FlaskForm):
     password = PasswordField(
         "Initial local password",
         validators=[DataRequired(), Length(min=ACCOUNT_PASSWORD_MIN_LENGTH, max=255)],
-        description="Fictional demo account only; the password is hashed immediately.",
+        description="demo account only; the password is hashed immediately.",
     )
     submit = SubmitField("Register patient")
 

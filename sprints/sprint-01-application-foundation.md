@@ -15,7 +15,7 @@ Create the core database schema needed for the first demonstrable patient-to-cli
 ## Scope and user stories
 
 - As a patient, my account can have one patient profile.
-- As a patient, I can have fictional glucose readings associated with my profile.
+- As a patient, I can have glucose readings associated with my profile.
 - As a clinician, I can be assigned to a patient profile.
 - As a clinician, I can author a note associated with an assigned patient.
 - As an administrator, roles can be assigned to users in the demonstration data model.
@@ -57,7 +57,7 @@ Create the core database schema needed for the first demonstrable patient-to-cli
 
 - Add the Flask-Login user loader and login/logout routes.
 - Add role-protected route helpers.
-- Add deterministic fictional seed commands.
+- Add deterministic seed commands.
 
 ## Review notes and next steps
 

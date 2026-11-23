@@ -8,21 +8,21 @@ This document explains how AfyaGlyco works and how planned changes fit the imple
 
 The diagrams use Mermaid flowchart syntax. They should be readable in Markdown tools that support Mermaid, and they should be kept close to the written explanation so that a reader can follow the system from user action to stored data and back to the user.
 
-The system shown here is theoretical. It is designed for an academic capstone demonstration using fictional or seeded records.
+The system shown here is theoretical. It is designed for an academic capstone demonstration using seeded records.
 
 Sprint 01 implements the core records for the first vertical slice: users, roles, patient profiles, clinician assignment, glucose readings, and clinician-authored notes. Meal, exercise, medication, reminder, audit, and report records remain planned work.
 
-Sprint 02 implements session-based authentication, CSRF-protected sign-in and sign-out, fictional demo-account seeding, and server-side role protection for patient, clinician, and administrator areas. The role dashboards are intentionally small placeholders until the related workflows are implemented.
+Sprint 02 implements session-based authentication, CSRF-protected sign-in and sign-out, demo-account seeding, and server-side role protection for patient, clinician, and administrator areas. The role dashboards are intentionally small placeholders until the related workflows are implemented.
 
 Sprint 06 implements the central business-rules contract and complete patient CRUD for meal and exercise records. Patients can manage only their own records, while assigned clinicians can read those records without mutation controls. The rules module is the authoritative application-level source for permissions and shared constraints.
 
-Sprint 07 implements the safe medication-reminder and medication-event workflow. Assigned clinicians can fully manage fictional reminders for their assigned patients. Patients can view their configured reminders and fully manage their own patient-entered medication events. Assigned clinicians can read those events, but the system does not infer adherence, recommend treatment, or send notifications.
+Sprint 07 implements the safe medication-reminder and medication-event workflow. Assigned clinicians can fully manage reminders for their assigned patients. Patients can view their configured reminders and fully manage their own patient-entered medication events. Assigned clinicians can read those events, but the system does not infer adherence, recommend treatment, or send notifications.
 
-Sprint 08 implements read-only derived reports for patients and assigned clinicians. The reports aggregate already-authorized fictional records, offer an optional validated date range, and show transparent counts and a recorded-value trend. Reports are not stored records and have no create, update, or delete operations.
+Sprint 08 implements read-only derived reports for patients and assigned clinicians. The reports aggregate already-authorized records, offer an optional validated date range, and show transparent counts and a recorded-value trend. Reports are not stored records and have no create, update, or delete operations.
 
-Sprint 09 implements organization-scoped account provisioning and patient registers. Administrators can manage fictional clinics or hospitals and provision clinician accounts. Clinicians can register fictional patients or attach existing unassigned patients in their organization. Patient assignment metadata is kept separate from health-record access, and administrators still do not receive health-record or report access by default.
+Sprint 09 implements organization-scoped account provisioning and patient registers. Administrators can manage clinics or hospitals and provision clinician accounts. Clinicians can register patients or attach existing unassigned patients in their organization. Patient assignment metadata is kept separate from health-record access, and administrators still do not receive health-record or report access by default.
 
-Sprint 10 implements one-time first-administrator bootstrap. When the `users` table is empty, the login page shows a CSRF-protected setup link. The route creates one administrator with a hashed password, assigns the administrator role, starts a session, and becomes unavailable after the first user exists. The existing seed command remains available for repeatable fictional demonstration accounts.
+Sprint 10 implements one-time first-administrator bootstrap. When the `users` table is empty, the login page shows a CSRF-protected setup link. The route creates one administrator with a hashed password, assigns the administrator role, starts a session, and becomes unavailable after the first user exists. The existing seed command remains available for repeatable demonstration accounts.
 
 ## How to read the model
 
@@ -104,13 +104,13 @@ This is the primary student demonstration flow. It shows how a patient creates a
 
 The glucose-reading branch is implemented in Sprint 03 and its CRUD completeness is closed in Sprint 06. A signed-in patient opens the responsive patient dashboard, submits a value, timestamp, and optional context, and can then view, edit, or delete the entry through the history and detail pages. Every patient query is filtered by the signed-in user's patient profile; attempting to open or mutate another patient's reading returns a not-found response.
 
-The meal and exercise branches are implemented in Sprint 06. A patient can create, view, edit, and delete their own fictional meal or exercise records. The same ownership check is applied to every read, update, and delete query. An assigned clinician can read the records from the patient review page, but cannot mutate them. The application stores and displays these entries without calculating nutrition, prescribing exercise, or inferring clinical outcomes.
+The meal and exercise branches are implemented in Sprint 06. A patient can create, view, edit, and delete their own meal or exercise records. The same ownership check is applied to every read, update, and delete query. An assigned clinician can read the records from the patient review page, but cannot mutate them. The application stores and displays these entries without calculating nutrition, prescribing exercise, or inferring clinical outcomes.
 
-The medication branch is implemented in Sprint 07. An assigned clinician creates a fictional medication label and schedule description for a patient. The patient can read that reminder and can create, view, edit, or delete an event with a controlled status, timestamp, and optional context. The event is only the patient's recorded input; it is not converted into an adherence score or clinical conclusion.
+The medication branch is implemented in Sprint 07. An assigned clinician creates a medication label and schedule description for a patient. The patient can read that reminder and can create, view, edit, or delete an event with a controlled status, timestamp, and optional context. The event is only the patient's recorded input; it is not converted into an adherence score or clinical conclusion.
 
 The reporting branch is implemented in Sprint 08. A patient can open a read-only summary of their own records, and an assigned clinician can open the corresponding summary for that patient. Both pages can accept a start and end date, but the report only counts and displays the records that the current role is already permitted to read. Empty periods are presented as empty data, not as a health conclusion.
 
-The registration branch is implemented in Sprint 09. An administrator creates or updates a fictional organization and provisions a clinician account in that organization. The clinician then sees only their own register and may either create a fictional patient registration or attach an existing unassigned patient from the same organization. A clinician cannot take over an existing assignment or cross an organization boundary. A patient can view their own organization and assigned clinician summary, but cannot edit either relationship.
+The registration branch is implemented in Sprint 09. An administrator creates or updates an organization and provisions a clinician account in that organization. The clinician then sees only their own register and may either create a patient registration or attach an existing unassigned patient from the same organization. A clinician cannot take over an existing assignment or cross an organization boundary. A patient can view their own organization and assigned clinician summary, but cannot edit either relationship.
 
 ```mermaid
 flowchart TD
@@ -166,7 +166,7 @@ flowchart LR
     Trend[Build simple trend summary]
     Review[Clinician reviews entries]
     Report[Open read-only report]
-    Reminder[Configure fictional reminder]
+    Reminder[Configure reminder]
     Events[Read patient-entered medication events]
     Note[Add feedback or follow-up note]
     Store[(PostgreSQL)]
@@ -188,9 +188,9 @@ The feedback is authored by the clinician. The system stores and displays it; it
 
 ## 4. Administrator flow
 
-The administrator controls fictional demonstration-account status and reviews role assignments. This flow is intentionally small so that the capstone can show account management without becoming a complete enterprise administration system. Sprint 05 implements the user list and activation/deactivation of other demo accounts; the administrator cannot deactivate its own account.
+The administrator controls demonstration-account status and reviews role assignments. This flow is intentionally small so that the capstone can show account management without becoming a complete enterprise administration system. Sprint 05 implements the user list and activation/deactivation of other demo accounts; the administrator cannot deactivate its own account.
 
-For a fresh demonstration database, Sprint 10 adds a one-time first-administrator link to the login page. After that account is created, the administrator uses the existing account-management routes, while the seed command remains the repeatable way to prepare the fictional patient, clinician, and administrator accounts.
+For a fresh demonstration database, Sprint 10 adds a one-time first-administrator link to the login page. After that account is created, the administrator uses the existing account-management routes, while the seed command remains the repeatable way to prepare the patient, clinician, and administrator accounts.
 
 ```mermaid
 flowchart TD
@@ -199,7 +199,7 @@ flowchart TD
     Dashboard --> Users[View users]
     Dashboard --> Roles[Review displayed roles]
     Dashboard --> Status[Activate or deactivate another demo account]
-    Dashboard --> Seed[Run fictional seed command when preparing a demo]
+    Dashboard --> Seed[Run seed command when preparing a demo]
     Users --> Save[(PostgreSQL)]
     Roles --> Save
     Status --> Save
@@ -378,11 +378,11 @@ Sprint 09 adds the concrete `Organization` record and organization foreign keys 
 ### Demonstrate organization and registration management
 
 1. Sign in with the administrator account.
-2. Open Organizations and create or edit a fictional clinic or hospital; demonstrate activation or deactivation rather than deletion.
+2. Open Organizations and create or edit a clinic or hospital; demonstrate activation or deactivation rather than deletion.
 3. Open Clinicians and provision a clinician account in the active organization; confirm that the password is never displayed after submission.
 4. Open Patients to review assignment metadata only, then demonstrate transfer or unassignment without opening a health record.
 5. Sign out and sign in with the newly provisioned clinician account.
-6. Open the patient register and register a new fictional patient, or attach an existing unassigned patient from the same organization.
+6. Open the patient register and register a new patient, or attach an existing unassigned patient from the same organization.
 7. Confirm that the register contains only the clinician's assigned patients and that an assigned or cross-organization patient cannot be attached.
 8. Sign in as the patient and open Profile to show the read-only organization and assigned-clinician summary.
 
@@ -390,8 +390,8 @@ Sprint 09 adds the concrete `Organization` record and organization foreign keys 
 
 1. Sign in with the seeded patient account.
 2. Open the patient dashboard.
-3. Add one or more fictional glucose readings.
-4. Add a fictional meal and exercise entry.
+3. Add one or more glucose readings.
+4. Add a meal and exercise entry.
 5. Return to the dashboard.
 6. Show the new entries and updated recorded-value summary.
 7. Open a meal or exercise entry, demonstrate edit, then demonstrate delete.
@@ -405,7 +405,7 @@ Sprint 09 adds the concrete `Organization` record and organization foreign keys 
 3. Select the demonstration patient.
 4. Review the patient's entries and trend summary.
 5. Add a clearly labelled clinician-authored follow-up note.
-6. Add a fictional medication reminder for the assigned patient.
+6. Add a medication reminder for the assigned patient.
 7. Open the patient review page and show the patient's medication-event area is read-only.
 8. Open the assigned patient's report and show the transparent counts and recorded-value trend.
 9. Sign back in as the patient, show the reminder, record an event, and demonstrate event edit and delete.
@@ -416,7 +416,7 @@ Sprint 09 adds the concrete `Organization` record and organization foreign keys 
 1. Sign in with the seeded administrator account.
 2. View the user list.
 3. Show role assignments.
-4. Activate or deactivate another fictional account.
+4. Activate or deactivate another account.
 5. Explain that administrator actions are restricted from the patient and clinician views, and that self-deactivation is prevented.
 
 ## 8. Design-change checklist
@@ -447,13 +447,13 @@ For each significant change:
 | --- | --- | --- | --- |
 | 2026-11-05 | Created the theoretical capstone system model | All sections | Establish the initial design baseline |
 | 2026-11-06 | Implemented the core MVP schema for users, roles, patient profiles, clinician assignment, glucose readings, and clinician notes | Sections 1, 3, 5, and 6 | Establish the data foundation for the patient-to-clinician demonstration loop |
-| 2026-11-06 | Added session authentication, CSRF protection, fictional demo-account seeding, and server-side role-protected dashboards | Sections 1, 1a, 2, 3, 4, and 5 | Establish the access boundary for the patient, clinician, and administrator workflows |
+| 2026-11-06 | Added session authentication, CSRF protection, demo-account seeding, and server-side role-protected dashboards | Sections 1, 1a, 2, 3, 4, and 5 | Establish the access boundary for the patient, clinician, and administrator workflows |
 | 2026-11-06 | Added the patient glucose-reading workflow with responsive entry, history, detail, summary, and ownership checks | Sections 2, 5, and 6 | Establish the first patient data-entry slice while preserving record ownership boundaries |
 | 2026-11-06 | Added assigned-clinician review, reading display, clinician-authored notes, patient feedback display, and assignment checks | Sections 3, 5, and 6 | Complete the first patient-to-clinician review loop while preserving the authorization boundary |
-| 2026-11-06 | Added administrator user listing, role/status display, account activation/deactivation, self-lockout protection, and responsive role navigation | Sections 4 and 5 | Make the fictional demonstration manageable and ready for a supervised board walkthrough |
+| 2026-11-06 | Added administrator user listing, role/status display, account activation/deactivation, self-lockout protection, and responsive role navigation | Sections 4 and 5 | Make the demonstration manageable and ready for a supervised board walkthrough |
 | 2026-11-18 | Added a central business-rules contract, completed glucose CRUD, and added patient CRUD for meal and exercise records with assigned-clinician read-only review | Sections 1, 2, 3, 5, and 6 | Extend self-monitoring context while preserving explicit ownership and non-clinical prototype boundaries |
-| 2026-11-19 | Added fictional clinician-configured medication reminders, patient medication-event CRUD, assigned-clinician read-only event review, migration, route inventory, and boundary tests | Sections 1, 2, 3, 5, 6, and 7 | Cover the medication-scheduling requirement without adding prescriptions, dosage guidance, adherence inference, or external notifications |
+| 2026-11-19 | Added clinician-configured medication reminders, patient medication-event CRUD, assigned-clinician read-only event review, migration, route inventory, and boundary tests | Sections 1, 2, 3, 5, 6, and 7 | Cover the medication-scheduling requirement without adding prescriptions, dosage guidance, adherence inference, or external notifications |
 | 2026-11-19 | Added read-only derived patient and assigned-clinician reports with validated date filters, transparent counts, and recorded-value trends | Sections 1, 2, 3, 5, 6, and 7 | Cover the basic reports and progress-summary scope without persisting duplicate data or introducing clinical interpretation |
-| 2026-11-19 | Added organization-scoped organization, clinician-provisioning, patient-registration, patient-assignment, and read-only patient-profile workflows | Sections 1, 1a, 2, 4, 5, 6, and 7 | Make the fictional demonstration accounts and patient registers manageable while preserving organization boundaries and health-record privacy |
+| 2026-11-19 | Added organization-scoped organization, clinician-provisioning, patient-registration, patient-assignment, and read-only patient-profile workflows | Sections 1, 1a, 2, 4, 5, 6, and 7 | Make the demonstration accounts and patient registers manageable while preserving organization boundaries and health-record privacy |
 | 2026-11-23 | Added the one-time first-administrator bootstrap form, empty-database link, server-side reuse protection, password validation, and PostgreSQL check-and-create locking | Sections 1, 1a, 1b, 4, 5, 6, and 7 | Let a fresh demonstration database establish its first administrator without turning the prototype into a public registration service |
 

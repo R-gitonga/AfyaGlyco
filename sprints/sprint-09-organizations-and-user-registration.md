@@ -6,7 +6,7 @@ Implemented. The organization, clinician-provisioning, patient-register, assignm
 
 ## Sprint goal
 
-Add a small organization and account-provisioning workflow so an administrator can register fictional clinics or hospitals and clinicians, while clinicians can build a patient register within their organization. Preserve the existing patient ownership, clinician assignment, and health-record privacy boundaries.
+Add a small organization and account-provisioning workflow so an administrator can register clinics or hospitals and clinicians, while clinicians can build a patient register within their organization. Preserve the existing patient ownership, clinician assignment, and health-record privacy boundaries.
 
 ## Why this sprint comes next
 
@@ -14,16 +14,16 @@ The prototype currently has seeded users and a single assigned-clinician relatio
 
 ## Scope and user stories
 
-- As an administrator, I can create, read, update, and deactivate a fictional clinic or hospital record.
+- As an administrator, I can create, read, update, and deactivate a clinic or hospital record.
 - As an administrator, I can register a clinician account and associate it with an active organization.
 - As an administrator, I can view clinician account status and organization membership and activate or deactivate the account.
 - As an administrator, I can assign or transfer a patient registration between clinicians in the same organization without viewing the patient's health records.
 - As a clinician, I can view my patient register.
-- As a clinician, I can register a new fictional patient account and assign that patient to my own register.
-- As a clinician, I can attach an existing unassigned fictional patient account from my organization to my register.
+- As a clinician, I can register a new patient account and assign that patient to my own register.
+- As a clinician, I can attach an existing unassigned patient account from my organization to my register.
 - As a clinician, I cannot take over a patient already assigned to another clinician or add a patient from another organization.
 - As a patient, I can see my own display name, organization, and assigned clinician as read-only profile information.
-- As a demonstrator, I can create the organization and accounts needed for a repeatable fictional board walkthrough.
+- As a demonstrator, I can create the organization and accounts needed for a repeatable board walkthrough.
 
 ## Business-rules contract and CRUD decision
 
@@ -71,7 +71,7 @@ If implementation reveals that a user must belong to multiple organizations, sto
 
 For the local academic prototype, administrator and clinician registration may set an initial password through a CSRF-protected form. Passwords must be hashed immediately and never displayed, logged, or stored in plaintext. Email invitations, password-reset delivery, and external identity providers remain out of scope.
 
-New patient registration should use the same fictional-account boundary. If a temporary onboarding credential is needed for the demonstration, the implementation must clearly label it as local demo setup and should require a password change before ordinary use if that flow can be added without expanding the sprint beyond a safe vertical slice.
+New patient registration should use the same account boundary. If a temporary onboarding credential is needed for the demonstration, the implementation must clearly label it as local demo setup and should require a password change before ordinary use if that flow can be added without expanding the sprint beyond a safe vertical slice.
 
 ## Proposed routes
 
@@ -79,7 +79,7 @@ Finalize exact paths before implementation and update the README route inventory
 
 Administrator organization routes:
 
-- `GET /admin/organizations` — list fictional organizations.
+- `GET /admin/organizations` — list organizations.
 - `GET, POST /admin/organizations/new` — display and create an organization.
 - `GET, POST /admin/organizations/<organization_id>/edit` — display and update organization metadata.
 - `POST /admin/organizations/<organization_id>/status` — activate or deactivate an organization.
@@ -94,7 +94,7 @@ Administrator clinician routes:
 Clinician patient-register routes:
 
 - `GET /clinician/patients` — list the signed-in clinician's register.
-- `GET, POST /clinician/patients/register` — display and process a new fictional patient registration.
+- `GET, POST /clinician/patients/register` — display and process a new patient registration.
 - `GET, POST /clinician/patients/add-existing` — attach an existing unassigned patient in the clinician's organization.
 - Existing `/clinician/patients/<patient_id>` review routes remain assignment-scoped.
 
@@ -118,7 +118,7 @@ Patient profile route:
 
 ## Design and safety boundaries
 
-- Store fictional or seeded accounts and organizations only.
+- Store seeded accounts and organizations only.
 - Do not add real clinic names, patient identities, emails, or medical information to fixtures or documentation.
 - Use server-side role, active-status, organization, and assignment checks; never rely on hidden links or organization selectors alone.
 - Do not allow a clinician to view or modify records belonging to another clinician's patient.
@@ -130,7 +130,7 @@ Patient profile route:
 ## Acceptance criteria
 
 - The business-rules module defines the complete organization, clinician-account, patient-registration, and patient-assignment operation matrix before routes are added.
-- An administrator can create, read, update, and deactivate a fictional clinic or hospital.
+- An administrator can create, read, update, and deactivate a clinic or hospital.
 - An administrator can create and manage a clinician account associated with an active organization.
 - Clinician passwords are hashed and are not returned in responses, logs, or templates after submission.
 - A clinician can view only their own register and can register a new patient in their organization.

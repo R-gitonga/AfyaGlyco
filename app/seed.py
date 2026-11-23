@@ -1,4 +1,4 @@
-"""Create repeatable fictional roles, organizations, and demonstration accounts."""
+"""Create repeatable roles, organizations, and demonstration accounts."""
 
 import secrets
 
@@ -60,7 +60,7 @@ def register_seed_command(app):
         help="Password to use for newly created demo accounts.",
     )
     def seed_demo(password):
-        """Create or refresh fictional accounts for the demonstration."""
+        """Create or refresh accounts for the demonstration."""
         generated_password = password or secrets.token_urlsafe(12)
         roles = {
             name: _get_or_create_role(name) for name in DEMO_ACCOUNTS
@@ -100,7 +100,7 @@ def register_seed_command(app):
 
         db.session.commit()
 
-        click.echo("Fictional demo accounts are ready:")
+        click.echo("demo accounts are ready:")
         for role_name, email in DEMO_ACCOUNTS.items():
             click.echo(f"  {role_name}: {email}")
         if created_accounts or password:

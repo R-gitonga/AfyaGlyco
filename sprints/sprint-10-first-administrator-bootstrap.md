@@ -6,12 +6,12 @@ Implemented. The empty-database login flow now exposes a one-time, CSRF-protecte
 
 ## Sprint goal
 
-Make a fresh or reset demonstration database self-starting without requiring the seeded demo command to succeed first. Preserve the boundary that this is a fictional academic prototype and not a public account-registration system.
+Make a fresh or reset demonstration database self-starting without requiring the seeded demo command to succeed first. Preserve the boundary that this is a academic prototype and not a public account-registration system.
 
 ## Scope and user stories
 
 - As a panel demonstrator, I can open the login page on an empty database and see a first-administrator setup link.
-- As a demonstrator, I can submit a fictional email, display name, and password to create the first administrator.
+- As a demonstrator, I can submit a email, display name, and password to create the first administrator.
 - As the system, I expose the setup link and accept the form only while no user exists.
 - As the system, I hash the password, assign the administrator role, start a session, and redirect to the role dashboard.
 - As an existing user, I cannot reopen or reuse the public bootstrap flow.
@@ -51,7 +51,7 @@ The route handler and authentication service both enforce the one-time condition
 
 ## Open issues or blockers
 
-- The seed command remains available for repeatable fictional patient, clinician, and administrator accounts.
+- The seed command remains available for repeatable patient, clinician, and administrator accounts.
 - No password-reset or email-delivery workflow is added; those remain outside the prototype scope.
 
 ## Carry-over work
@@ -60,4 +60,4 @@ The route handler and authentication service both enforce the one-time condition
 
 ## Review notes and next steps
 
-Use the bootstrap link after resetting the Render demonstration database, then create or seed the remaining fictional accounts through the administrator workflow or the documented seed command.
+Use the bootstrap link after resetting the Render demonstration database, then create or seed the remaining accounts through the administrator workflow or the documented seed command.

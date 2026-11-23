@@ -54,7 +54,7 @@ class MealLogForm(FlaskForm):
     description = TextAreaField(
         "Meal description",
         validators=[DataRequired(), Length(max=MEAL_DESCRIPTION_MAX_LENGTH)],
-        description="Describe the fictional meal without nutritional interpretation.",
+        description="Describe the meal without nutritional interpretation.",
     )
     recorded_at = DateTimeLocalField(
         "Date and time recorded",

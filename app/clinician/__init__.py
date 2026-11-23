@@ -123,7 +123,7 @@ def register_patient():
             )
             db.session.add_all([user, profile])
             db.session.commit()
-            flash("The fictional patient was registered to your patient register.", "success")
+            flash("The patient was registered to your patient register.", "success")
             return redirect(url_for("clinician.patient_register"))
     return render_template("clinician/patient_registration_form.html", form=form)
 
@@ -162,7 +162,7 @@ def add_existing_patient():
             abort(409)
         patient.assigned_clinician = current_user
         db.session.commit()
-        flash("The existing fictional patient was added to your register.", "success")
+        flash("The existing patient was added to your register.", "success")
         return redirect(url_for("clinician.patient_register"))
     return render_template(
         "clinician/add_existing_patient.html", form=form, patients=patients
@@ -399,7 +399,7 @@ def create_reminder(patient_id):
     )
     db.session.add(reminder)
     db.session.commit()
-    flash("The fictional medication reminder was saved.", "success")
+    flash("The medication reminder was saved.", "success")
     return redirect(url_for("clinician.patient_review", patient_id=patient.id))
 
 
@@ -446,7 +446,7 @@ def edit_reminder(patient_id, reminder_id):
         reminder.schedule_description = form.schedule_description.data.strip()
         reminder.is_active = bool(form.is_active.data)
         db.session.commit()
-        flash("The fictional medication reminder was updated.", "success")
+        flash("The medication reminder was updated.", "success")
         return redirect(
             url_for(
                 "clinician.reminder_detail",
@@ -479,5 +479,5 @@ def delete_reminder(patient_id, reminder_id):
         abort(400)
     db.session.delete(reminder)
     db.session.commit()
-    flash("The fictional medication reminder was deleted.", "success")
+    flash("The medication reminder was deleted.", "success")
     return redirect(url_for("clinician.patient_review", patient_id=patient.id))

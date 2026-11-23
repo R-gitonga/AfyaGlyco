@@ -2,7 +2,7 @@
 
 ## Sprint goal
 
-Allow a signed-in patient to record, view, and review fictional glucose readings while enforcing ownership at every patient-facing query.
+Allow a signed-in patient to record, view, and review glucose readings while enforcing ownership at every patient-facing query.
 
 ## Scope and user stories
 
@@ -41,7 +41,7 @@ Allow a signed-in patient to record, view, and review fictional glucose readings
 
 - Nine tests pass using isolated SQLite data.
 - Tailwind CSS must be rebuilt after template changes.
-- Verify the patient workflow with a seeded fictional account in the local PostgreSQL environment.
+- Verify the patient workflow with a seeded account in the local PostgreSQL environment.
 
 ## Open issues or blockers
 

@@ -6,7 +6,7 @@ Implemented. The application code, migration, routes, route inventory, tests, CS
 
 ## Sprint goal
 
-Add a safe, demonstration-only medication workflow in which an assigned clinician configures fictional reminders and a patient records medication events, while keeping dosage decisions and clinical interpretation outside the system boundary.
+Add a safe, demonstration-only medication workflow in which an assigned clinician configures reminders and a patient records medication events, while keeping dosage decisions and clinical interpretation outside the system boundary.
 
 ## Why this sprint comes next
 
@@ -14,9 +14,9 @@ The university project requirements include medication scheduling and adherence-
 
 ## Scope and user stories
 
-- As an assigned clinician, I can create, read, update, and delete a fictional medication reminder for an assigned patient.
+- As an assigned clinician, I can create, read, update, and delete a medication reminder for an assigned patient.
 - As an assigned clinician, I cannot configure a reminder for an unassigned patient.
-- As a patient, I can read the fictional reminders configured for me.
+- As a patient, I can read the reminders configured for me.
 - As a patient, I can create, read, update, and delete my own medication-event records.
 - As an assigned clinician, I can read medication events for an assigned patient.
 - As an unassigned clinician, I cannot access another clinician's patient's reminders or medication events.
@@ -37,7 +37,7 @@ Intentional restrictions:
 - The first version stores a medication label and schedule description; it does not calculate or recommend a dose.
 - Patient events represent what the patient entered. The system does not infer adherence, missed doses, treatment effectiveness, or risk.
 - Reminder delivery is displayed in the application only. Email, SMS, push notifications, and background scheduling are out of scope.
-- Administrators continue to manage fictional account status rather than clinical content.
+- Administrators continue to manage account status rather than clinical content.
 
 ## Planned data model
 
@@ -70,7 +70,7 @@ Exact paths must be finalized before implementation and added to the README rout
 
 ## Design and safety boundaries
 
-- Store fictional or seeded records only.
+- Store seeded records only.
 - Use explicit ownership and assignment queries for every operation.
 - Return non-disclosing not-found responses for out-of-scope patient records.
 - Do not send external notifications or claim that a reminder was delivered outside the application.
@@ -81,7 +81,7 @@ Exact paths must be finalized before implementation and added to the README rout
 ## Acceptance criteria
 
 - The business-rules module defines the reminder and medication-event CRUD matrix before implementation.
-- An assigned clinician can create, read, update, and delete a fictional reminder for an assigned patient.
+- An assigned clinician can create, read, update, and delete a reminder for an assigned patient.
 - A patient can read only reminders configured for that patient profile.
 - A patient can create, read, update, and delete only their own medication events.
 - An assigned clinician can read medication events for the assigned patient without patient mutation controls.
@@ -128,4 +128,4 @@ Exact paths must be finalized before implementation and added to the README rout
 
 ## Review notes and next decision
 
-The implemented reminder fields are a fictional medication label, schedule description, active status, configuring clinician, and timestamps. This is sufficient for the board demonstration. Keep the first slice application-visible and deterministic; defer external delivery mechanisms and advanced reporting to a later sprint.
+The implemented reminder fields are a medication label, schedule description, active status, configuring clinician, and timestamps. This is sufficient for the board demonstration. Keep the first slice application-visible and deterministic; defer external delivery mechanisms and advanced reporting to a later sprint.

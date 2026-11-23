@@ -24,7 +24,7 @@ The system should make it easy to demonstrate the complete workflow from account
 
 - Register and sign in
 - Maintain a basic profile
-- Record fictional glucose readings
+- Record glucose readings
 - Log meals and physical activity
 - Record medication events or view medication reminders
 - Review personal history and simple trends
@@ -79,22 +79,22 @@ The first version should focus on a small, complete, demonstrable workflow rathe
 
 The primary demonstration should follow this sequence:
 
-1. If the database has no users, open the login page and use the one-time first-administrator link; otherwise run the seed command to prepare fictional patient, clinician, and administrator accounts.
-2. The administrator creates or confirms a fictional organization and clinician account.
-3. The clinician registers or attaches a fictional patient to their register.
-4. The patient signs in and records several fictional glucose readings.
+1. If the database has no users, open the login page and use the one-time first-administrator link; otherwise run the seed command to prepare patient, clinician, and administrator accounts.
+2. The administrator creates or confirms an organization and clinician account.
+3. The clinician registers or attaches a patient to their register.
+4. The patient signs in and records several glucose readings.
 5. The patient dashboard displays recent entries and a simple recorded-value summary.
 6. The assigned clinician signs in and reviews the patient's readings.
 7. The clinician adds a clinician-authored feedback note.
 8. The patient signs in again and sees the stored feedback.
-9. The clinician configures a fictional medication reminder for the assigned patient.
+9. The clinician configures a medication reminder for the assigned patient.
 10. The patient signs in again, views the reminder, and records a medication event.
 11. The clinician reviews the patient-entered medication event without mutation controls.
 12. The patient opens the read-only report and reviews transparent counts and recorded-value trends.
 13. The clinician opens the assigned patient's read-only report.
-14. The administrator reviews users and activates or deactivates another fictional account.
+14. The administrator reviews users and activates or deactivates another account.
 
-This scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Medication reminders and events are fictional records displayed within the application; the system does not prescribe, interpret adherence, or send notifications.
+This scenario is sufficient to demonstrate the main value of the platform without requiring real-world healthcare integration. Medication reminders and events are records displayed within the application; the system does not prescribe, interpret adherence, or send notifications.
 
 ## Technology stack
 
@@ -124,7 +124,7 @@ This is the living route inventory. Update it whenever an application route is a
 | GET | `/` | Redirect to sign-in or the signed-in user's role dashboard | Public / authenticated |
 | GET | `/health` | Confirm that the AfyaGlyco service is running | Public |
 | GET | `/auth/login` | Display the sign-in form and, when no users exist, the one-time administrator bootstrap link | Public |
-| POST | `/auth/login` | Authenticate a fictional user and start a session | Public |
+| POST | `/auth/login` | Authenticate a user and start a session | Public |
 | GET, POST | `/auth/bootstrap-admin` | Display and process the one-time first-administrator form while the users table is empty | Public only when no users exist |
 | POST | `/auth/logout` | End the current session | Authenticated |
 | GET | `/dashboard` | Redirect to the current user's role dashboard | Authenticated |
@@ -147,7 +147,7 @@ This is the living route inventory. Update it whenever an application route is a
 | GET | `/patient/exercise/<exercise_id>` | Display one exercise entry when it belongs to the signed-in patient | Patient role |
 | GET, POST | `/patient/exercise/<exercise_id>/edit` | Display and process edits for the signed-in patient's exercise entry | Patient role |
 | POST | `/patient/exercise/<exercise_id>/delete` | Delete the signed-in patient's exercise entry after CSRF validation | Patient role |
-| GET | `/patient/reminders` | Display configured fictional reminders for the signed-in patient | Patient role |
+| GET | `/patient/reminders` | Display configured reminders for the signed-in patient | Patient role |
 | GET | `/patient/reminders/<reminder_id>` | Display one configured reminder for the signed-in patient | Patient role |
 | GET | `/patient/medication-events/new` | Display the medication-event form | Patient role |
 | POST | `/patient/medication-events` | Validate and store a medication event for the signed-in patient | Patient role |
@@ -155,28 +155,28 @@ This is the living route inventory. Update it whenever an application route is a
 | GET | `/patient/medication-events/<event_id>` | Display one medication event owned by the signed-in patient | Patient role |
 | GET, POST | `/patient/medication-events/<event_id>/edit` | Display and process edits for the signed-in patient's medication event | Patient role |
 | POST | `/patient/medication-events/<event_id>/delete` | Delete the signed-in patient's medication event after CSRF validation | Patient role |
-| GET | `/patient/reports` | Display a read-only summary of the signed-in patient's authorized fictional records | Patient role |
+| GET | `/patient/reports` | Display a read-only summary of the signed-in patient's authorized records | Patient role |
 | GET | `/clinician` | Display patients assigned to the signed-in clinician | Clinician role |
 | GET | `/clinician/patients/<patient_id>` | Review assigned-patient records, reminders, events, and notes | Assigned clinician |
-| GET | `/clinician/patients/<patient_id>/reports` | Display a read-only summary of an assigned patient's authorized fictional records | Assigned clinician |
+| GET | `/clinician/patients/<patient_id>/reports` | Display a read-only summary of an assigned patient's authorized records | Assigned clinician |
 | POST | `/clinician/patients/<patient_id>/notes` | Store a clinician-authored note for an assigned patient | Assigned clinician |
 | GET | `/clinician/patients/<patient_id>/reminders/new` | Display the reminder form for an assigned patient | Assigned clinician |
-| POST | `/clinician/patients/<patient_id>/reminders` | Create a fictional reminder for an assigned patient | Assigned clinician |
+| POST | `/clinician/patients/<patient_id>/reminders` | Create a reminder for an assigned patient | Assigned clinician |
 | GET | `/clinician/patients/<patient_id>/reminders/<reminder_id>` | Display one reminder for an assigned patient | Assigned clinician |
 | GET, POST | `/clinician/patients/<patient_id>/reminders/<reminder_id>/edit` | Display and process reminder edits for an assigned patient | Assigned clinician |
 | POST | `/clinician/patients/<patient_id>/reminders/<reminder_id>/delete` | Delete a reminder for an assigned patient after CSRF validation | Assigned clinician |
 | GET | `/clinician/patients` | Display the signed-in clinician's organization-scoped patient register | Clinician role |
-| GET, POST | `/clinician/patients/register` | Display and process a new fictional patient registration for the signed-in clinician | Clinician role |
+| GET, POST | `/clinician/patients/register` | Display and process a new patient registration for the signed-in clinician | Clinician role |
 | GET, POST | `/clinician/patients/add-existing` | Display and process attachment of an existing unassigned patient in the clinician's organization | Clinician role |
 | GET | `/patient/profile` | Display the signed-in patient's organization and assigned clinician as read-only metadata | Patient role |
-| GET | `/admin` | Display fictional users, roles, and account statuses | Administrator role |
-| POST | `/admin/users/<user_id>/status` | Activate or deactivate another fictional account | Administrator role |
-| GET | `/admin/organizations` | Display fictional clinics and hospitals | Administrator role |
-| GET, POST | `/admin/organizations/new` | Display and create a fictional organization | Administrator role |
+| GET | `/admin` | Display users, roles, and account statuses | Administrator role |
+| POST | `/admin/users/<user_id>/status` | Activate or deactivate another account | Administrator role |
+| GET | `/admin/organizations` | Display clinics and hospitals | Administrator role |
+| GET, POST | `/admin/organizations/new` | Display and create an organization | Administrator role |
 | GET, POST | `/admin/organizations/<organization_id>/edit` | Display and update organization metadata | Administrator role |
 | POST | `/admin/organizations/<organization_id>/status` | Activate or deactivate an organization | Administrator role |
 | GET | `/admin/clinicians` | Display clinician accounts and organization membership | Administrator role |
-| GET, POST | `/admin/clinicians/new` | Display and create a fictional clinician account | Administrator role |
+| GET, POST | `/admin/clinicians/new` | Display and create a clinician account | Administrator role |
 | GET, POST | `/admin/clinicians/<user_id>/edit` | Display and update clinician account metadata | Administrator role |
 | POST | `/admin/clinicians/<user_id>/status` | Activate or deactivate a clinician account | Administrator role |
 | GET | `/admin/patients` | Display patient assignment metadata without health records | Administrator role |
@@ -209,9 +209,9 @@ The exact structure may change as implementation begins, but related functionali
 
 ## Data and privacy boundaries
 
-All development and demonstration records must be fictional, seeded, or otherwise non-identifying. Do not add real patient names, contact details, medical histories, or photographs to the repository.
+All development and demonstration records must be seeded, synthetic, or otherwise non-identifying. Do not add real patient names, contact details, medical histories, or photographs to the repository.
 
-The interface should clearly identify the application as an academic prototype. Health-related information displayed by the system should be treated as sensitive even when it is fictional. Secrets, database passwords, API keys, and local environment files must not be committed.
+The interface should clearly identify the application as an academic prototype. Health-related information displayed by the system should be treated as sensitive even when it is synthetic. Secrets, database passwords, API keys, and local environment files must not be committed.
 
 ## Quality expectations
 
@@ -276,13 +276,13 @@ DATABASE_URL=postgresql+psycopg://username:password@localhost:5432/diabetes_self
 
 ### 4. First-time demo account setup
 
-There is no general public registration page. When the database has no users, the login page exposes a one-time first-administrator setup link. The form creates one administrator, hashes the password, signs the administrator in, and becomes unavailable once the first user exists. For repeatable demonstrations, the seed command still creates fictional patient, clinician, and administrator accounts. Set `DEMO_SEED_PASSWORD` in the local `.env`, or pass `--password`; if neither is provided for new accounts, the command generates and prints a random password.
+There is no general public registration page. When the database has no users, the login page exposes a one-time first-administrator setup link. The form creates one administrator, hashes the password, signs the administrator in, and becomes unavailable once the first user exists. For repeatable demonstrations, the seed command still creates patient, clinician, and administrator accounts. Set `DEMO_SEED_PASSWORD` in the local `.env`, or pass `--password`; if neither is provided for new accounts, the command generates and prints a random password.
 
 ```powershell
 flask --app run:app seed-demo --password "choose-a-local-demo-password"
 ```
 
-The command creates `patient@example.test`, `clinician@example.test`, and `admin@example.test`. After starting the app, open `http://127.0.0.1:5000/auth/login` and sign in with one of those fictional accounts.
+The command creates `patient@example.test`, `clinician@example.test`, and `admin@example.test`. After starting the app, open `http://127.0.0.1:5000/auth/login` and sign in with one of those accounts.
 
 Do not commit the password or place real personal information in the seed data.
 

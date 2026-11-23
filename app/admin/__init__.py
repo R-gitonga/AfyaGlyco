@@ -116,7 +116,7 @@ def new_organization():
                 )
             )
             db.session.commit()
-            flash("The fictional organization was created.", "success")
+            flash("The organization was created.", "success")
             return redirect(url_for("admin.organizations"))
     return render_template("admin/organization_form.html", form=form, editing=False)
 
@@ -144,7 +144,7 @@ def edit_organization(organization_id):
             organization.name = name
             organization.organization_type = form.organization_type.data
             db.session.commit()
-            flash("The fictional organization was updated.", "success")
+            flash("The organization was updated.", "success")
             return redirect(url_for("admin.organizations"))
     return render_template(
         "admin/organization_form.html", form=form, editing=True, organization=organization
@@ -206,7 +206,7 @@ def new_clinician():
             clinician.roles.append(role)
             db.session.add(clinician)
             db.session.commit()
-            flash("The fictional clinician account was created.", "success")
+            flash("The clinician account was created.", "success")
             return redirect(url_for("admin.clinicians"))
     return render_template("admin/clinician_form.html", form=form, editing=False)
 
@@ -241,7 +241,7 @@ def edit_clinician(user_id):
             clinician.display_name = form.display_name.data.strip()
             clinician.organization = organization
             db.session.commit()
-            flash("The fictional clinician account was updated.", "success")
+            flash("The clinician account was updated.", "success")
             return redirect(url_for("admin.clinicians"))
     return render_template(
         "admin/clinician_form.html", form=form, editing=True, clinician=clinician

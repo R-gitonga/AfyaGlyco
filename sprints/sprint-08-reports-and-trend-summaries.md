@@ -6,7 +6,7 @@ Implemented. The report aggregation, read-only routes, templates, tests, route i
 
 ## Sprint goal
 
-Turn the existing fictional records into clear, read-only summaries for patients and assigned clinicians. The sprint should improve the board demonstration by making trends and record coverage easier to understand without diagnosing, scoring risk, or recommending treatment.
+Turn the existing records into clear, read-only summaries for patients and assigned clinicians. The sprint should improve the board demonstration by making trends and record coverage easier to understand without diagnosing, scoring risk, or recommending treatment.
 
 ## Why this sprint comes next
 
@@ -14,12 +14,12 @@ The capstone scope includes basic charts, progress summaries, and reports. AfyaG
 
 ## Scope and user stories
 
-- As a patient, I can view a read-only summary of my own fictional records.
+- As a patient, I can view a read-only summary of my own records.
 - As an assigned clinician, I can view a read-only summary for an assigned patient.
 - As a patient or clinician, I can optionally narrow a summary to a valid recorded-date range.
 - As a demonstrator, I can show a simple trend chart and record-count summary without clinical interpretation.
 - As an administrator, I cannot view patient health summaries by default.
-- As a demonstrator, I can follow a documented report walkthrough using fictional or seeded data.
+- As a demonstrator, I can follow a documented report walkthrough using seeded data.
 
 ## Business-rules contract and CRUD decision
 
@@ -100,7 +100,7 @@ These routes are read-only. No POST, PUT, PATCH, or DELETE report routes should 
 
 ## Design and safety boundaries
 
-- Use fictional or seeded data only.
+- Use seeded data only.
 - Treat every report as a view over records the current user is already authorized to read.
 - Return a non-disclosing not-found response when an unassigned clinician requests another patient's report.
 - Do not expose reports to administrators unless a later requirements decision explicitly adds a safe aggregate-only administrator report.
@@ -111,7 +111,7 @@ These routes are read-only. No POST, PUT, PATCH, or DELETE report routes should 
 ## Acceptance criteria
 
 - The business-rules module defines the read-only report permission matrix before implementation.
-- A patient can view a report containing only that patient's authorized fictional records.
+- A patient can view a report containing only that patient's authorized records.
 - An assigned clinician can view a report for the assigned patient.
 - An unassigned clinician cannot retrieve another patient's report.
 - An administrator cannot access patient reports by default.

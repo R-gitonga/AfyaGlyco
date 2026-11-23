@@ -55,14 +55,14 @@ def make_clinician_app():
                 MealLog(
                     patient=profile,
                     meal_type="breakfast",
-                    description="Fictional clinician-visible meal",
+                    description="clinician-visible meal",
                     recorded_at=datetime(
                         2026, 11, 6, 8, 0, tzinfo=timezone.utc
                     ),
                 ),
                 ExerciseLog(
                     patient=profile,
-                    activity_type="Fictional clinician-visible exercise",
+                    activity_type="clinician-visible exercise",
                     duration_minutes=25,
                     recorded_at=datetime(
                         2026, 11, 6, 7, 0, tzinfo=timezone.utc
@@ -97,8 +97,8 @@ def test_assigned_clinician_can_review_patient_and_add_note():
     review = client.get(f"/clinician/patients/{patient_id}")
     assert review.status_code == 200
     assert b"Before breakfast" in review.data
-    assert b"Fictional clinician-visible meal" in review.data
-    assert b"Fictional clinician-visible exercise" in review.data
+    assert b"clinician-visible meal" in review.data
+    assert b"clinician-visible exercise" in review.data
 
     response = client.post(
         f"/clinician/patients/{patient_id}/notes",

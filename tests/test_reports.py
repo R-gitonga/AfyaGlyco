@@ -64,7 +64,7 @@ def make_report_app():
             patient=profile,
             configuring_clinician=clinician,
             medication_label_demo="Demo reminder",
-            schedule_description="Fictional morning schedule",
+            schedule_description="morning schedule",
         )
         db.session.add_all(
             [
@@ -72,23 +72,23 @@ def make_report_app():
                     patient=profile,
                     value_demo=6.4,
                     recorded_at=datetime(2026, 11, 6, 9, 30, tzinfo=timezone.utc),
-                    reading_context="First fictional reading",
+                    reading_context="First reading",
                 ),
                 GlucoseReading(
                     patient=profile,
                     value_demo=7.1,
                     recorded_at=datetime(2026, 11, 7, 9, 30, tzinfo=timezone.utc),
-                    reading_context="Second fictional reading",
+                    reading_context="Second reading",
                 ),
                 MealLog(
                     patient=profile,
                     meal_type="breakfast",
-                    description="Fictional breakfast",
+                    description="breakfast",
                     recorded_at=datetime(2026, 11, 6, 8, 0, tzinfo=timezone.utc),
                 ),
                 ExerciseLog(
                     patient=profile,
-                    activity_type="Fictional walking",
+                    activity_type="walking",
                     duration_minutes=20,
                     recorded_at=datetime(2026, 11, 7, 17, 0, tzinfo=timezone.utc),
                 ),
@@ -98,13 +98,13 @@ def make_report_app():
                     reminder=reminder,
                     status="recorded",
                     recorded_at=datetime(2026, 11, 7, 19, 0, tzinfo=timezone.utc),
-                    context="Fictional recorded event",
+                    context="recorded event",
                 ),
                 GlucoseReading(
                     patient=other_profile,
                     value_demo=9.9,
                     recorded_at=datetime(2026, 11, 6, 9, 30, tzinfo=timezone.utc),
-                    reading_context="Other patient's fictional reading",
+                    reading_context="Other patient's reading",
                 ),
             ]
         )
@@ -128,7 +128,7 @@ def test_patient_report_is_derived_owned_and_filterable():
     assert report_response.status_code == 200
     assert b"Recorded demo summary" in report_response.data
     assert b"Medication event statuses" in report_response.data
-    assert b"Other patient's fictional reading" not in report_response.data
+    assert b"Other patient's reading" not in report_response.data
 
     with app.app_context():
         profile = PatientProfile.query.filter_by(display_name="Demo Patient").one()

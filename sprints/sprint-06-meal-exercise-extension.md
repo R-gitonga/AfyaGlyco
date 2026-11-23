@@ -14,9 +14,9 @@ The MVP already demonstrates the core patient-to-clinician loop with glucose rea
 
 ## Scope and user stories
 
-- As a patient, I can create, read, update, and delete my own fictional meal records.
-- As a patient, I can create, read, update, and delete my own fictional exercise records.
-- As a patient, I can create, read, update, and delete my own fictional glucose records.
+- As a patient, I can create, read, update, and delete my own meal records.
+- As a patient, I can create, read, update, and delete my own exercise records.
+- As a patient, I can create, read, update, and delete my own glucose records.
 - As a patient, I cannot access or change another patient's meal or exercise records.
 - As an assigned clinician, I can read a patient's meal and exercise records.
 - As an unassigned clinician, I cannot access another clinician's patient's meal or exercise records.
@@ -36,7 +36,7 @@ Intentional restrictions:
 
 - Clinician review of meal and exercise records is read-only.
 - Clinician notes are append-only in this prototype; patients cannot edit them.
-- Administrators manage fictional account status, not clinical record content.
+- Administrators manage account status, not clinical record content.
 - The system stores and displays entered data but does not calculate calories, nutritional targets, exercise prescriptions, medical scores, diagnoses, alerts, or treatment recommendations.
 
 ## Planned data model
@@ -99,7 +99,7 @@ The route inventory must be updated with every implemented route:
 
 ## Design and safety boundaries
 
-- Store and display fictional entries only.
+- Store and display entries only.
 - Use explicit ownership queries for every patient-facing read, update, and delete.
 - Return non-disclosing not-found responses for records outside the signed-in patient's scope or clinician assignment.
 - Do not calculate calories, nutritional targets, exercise prescriptions, medical scores, or treatment recommendations.
