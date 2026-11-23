@@ -79,7 +79,7 @@ The first version should focus on a small, complete, demonstrable workflow rathe
 
 The primary demonstration should follow this sequence:
 
-1. Run the seed command to prepare fictional patient, clinician, and administrator accounts.
+1. If the database has no users, open the login page and use the one-time first-administrator link; otherwise run the seed command to prepare fictional patient, clinician, and administrator accounts.
 2. The administrator creates or confirms a fictional organization and clinician account.
 3. The clinician registers or attaches a fictional patient to their register.
 4. The patient signs in and records several fictional glucose readings.
@@ -123,8 +123,9 @@ This is the living route inventory. Update it whenever an application route is a
 | --- | --- | --- | --- |
 | GET | `/` | Redirect to sign-in or the signed-in user's role dashboard | Public / authenticated |
 | GET | `/health` | Confirm that the AfyaGlyco service is running | Public |
-| GET | `/auth/login` | Display the sign-in form | Public |
+| GET | `/auth/login` | Display the sign-in form and, when no users exist, the one-time administrator bootstrap link | Public |
 | POST | `/auth/login` | Authenticate a fictional user and start a session | Public |
+| GET, POST | `/auth/bootstrap-admin` | Display and process the one-time first-administrator form while the users table is empty | Public only when no users exist |
 | POST | `/auth/logout` | End the current session | Authenticated |
 | GET | `/dashboard` | Redirect to the current user's role dashboard | Authenticated |
 | GET | `/patient` | Display the patient landing dashboard | Patient role |
@@ -275,7 +276,7 @@ DATABASE_URL=postgresql+psycopg://username:password@localhost:5432/diabetes_self
 
 ### 4. First-time demo account setup
 
-There is no public registration page yet. The first-time setup creates fictional patient, clinician, and administrator accounts through the seed command. Set `DEMO_SEED_PASSWORD` in the local `.env`, or pass `--password`; if neither is provided for new accounts, the command generates and prints a random password.
+There is no general public registration page. When the database has no users, the login page exposes a one-time first-administrator setup link. The form creates one administrator, hashes the password, signs the administrator in, and becomes unavailable once the first user exists. For repeatable demonstrations, the seed command still creates fictional patient, clinician, and administrator accounts. Set `DEMO_SEED_PASSWORD` in the local `.env`, or pass `--password`; if neither is provided for new accounts, the command generates and prints a random password.
 
 ```powershell
 flask --app run:app seed-demo --password "choose-a-local-demo-password"

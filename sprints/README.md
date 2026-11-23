@@ -15,6 +15,7 @@ This folder contains the planning notes, decisions, progress updates, and review
 | 07 | Medication reminders and events | A clinician can configure fictional reminders and a patient can record medication events without dosage guidance |
 | 08 | Read-only reports and trend summaries | Patients and assigned clinicians can view transparent summaries of authorized fictional records |
 | 09 | Organizations, clinician onboarding, and patient registers | Administrators create fictional organizations and clinicians; clinicians build organization-scoped patient registers |
+| 10 | First-administrator bootstrap | An empty database exposes a one-time administrator creation link on the login page |
 
 Reports and external-integration features remain post-MVP extensions. Every sprint must preserve the mobile-responsive requirement in `agents.md`.
 

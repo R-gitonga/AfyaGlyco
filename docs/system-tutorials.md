@@ -22,6 +22,8 @@ Sprint 08 implements read-only derived reports for patients and assigned clinici
 
 Sprint 09 implements organization-scoped account provisioning and patient registers. Administrators can manage fictional clinics or hospitals and provision clinician accounts. Clinicians can register fictional patients or attach existing unassigned patients in their organization. Patient assignment metadata is kept separate from health-record access, and administrators still do not receive health-record or report access by default.
 
+Sprint 10 implements one-time first-administrator bootstrap. When the `users` table is empty, the login page shows a CSRF-protected setup link. The route creates one administrator with a hashed password, assigns the administrator role, starts a session, and becomes unavailable after the first user exists. The existing seed command remains available for repeatable fictional demonstration accounts.
+
 ## How to read the model
 
 - A user action starts a flow.
@@ -75,6 +77,26 @@ flowchart LR
 ```
 
 After authentication, organization and assignment checks are applied where a workflow needs them. An inactive organization blocks new clinician registrations, patient registrations, and assignment changes; it does not automatically expose or alter existing health records.
+
+## 1b. First-administrator bootstrap
+
+The bootstrap flow is a supervised setup path for a fresh demonstration database, not a general public registration feature. The login page queries whether any user exists and renders the setup link only when the answer is no. The GET and POST route repeats the same server-side check, validates the form and CSRF token, hashes the password, creates the administrator role assignment, signs the new account in, and redirects to the administrator dashboard. After the first account exists, the route returns not found and the link is not rendered.
+
+```mermaid
+flowchart TD
+    EmptyDB{Any users in database?}
+    LoginPage[Display login page]
+    EmptyDB -->|No| BootstrapLink[Show one-time administrator link]
+    EmptyDB -->|Yes| SignIn[Show normal sign-in workflow]
+    BootstrapLink --> BootstrapForm[Validate administrator setup form and CSRF token]
+    BootstrapForm -->|Invalid| BootstrapError[Show field errors]
+    BootstrapError --> BootstrapForm
+    BootstrapForm -->|Valid| CreateAdmin[Hash password and assign administrator role]
+    CreateAdmin --> Session[Start authenticated session]
+    Session --> AdminDashboard[Open administrator dashboard]
+    CreateAdmin --> Users[(Users and role assignments)]
+    Users -->|Later request| Closed[Bootstrap route unavailable]
+```
 
 ## 2. Patient data-flow tutorial
 
@@ -168,6 +190,8 @@ The feedback is authored by the clinician. The system stores and displays it; it
 
 The administrator controls fictional demonstration-account status and reviews role assignments. This flow is intentionally small so that the capstone can show account management without becoming a complete enterprise administration system. Sprint 05 implements the user list and activation/deactivation of other demo accounts; the administrator cannot deactivate its own account.
 
+For a fresh demonstration database, Sprint 10 adds a one-time first-administrator link to the login page. After that account is created, the administrator uses the existing account-management routes, while the seed command remains the repeatable way to prepare the fictional patient, clinician, and administrator accounts.
+
 ```mermaid
 flowchart TD
     Admin[Administrator signs in] --> Auth[Verify administrator role]
@@ -193,7 +217,7 @@ flowchart TB
     PatientRoutes[Patient blueprint\nDashboard, self-monitoring, profile, reminder read, event CRUD, and report routes]
     ClinicianRoutes[Clinician blueprint\nPatient register, assigned review, reminder CRUD, note, and report routes]
     AdminRoutes[Admin blueprint\nOrganization, clinician, assignment, and user status routes]
-    Auth[Authentication and authorization\nIdentity, sessions, role checks]
+    Auth[Authentication and authorization\nIdentity, sessions, bootstrap, role checks]
     Rules[Business rules\nPermissions, ownership, shared constraints]
     Reporting[Derived reporting\nAuthorized queries and transparent summaries]
     Forms[Forms and validation\nReject incomplete or invalid input]
@@ -348,7 +372,7 @@ Sprint 09 adds the concrete `Organization` record and organization foreign keys 
 1. Start the Flask application.
 2. Connect the application to a local PostgreSQL database.
 3. Run database migrations.
-4. Run `flask --app run:app seed-demo --password "choose-a-local-demo-password"` to prepare fictional accounts.
+4. If the database is empty, open the login page and create the first administrator through the one-time bootstrap link. For a repeatable full demo dataset, run `flask --app run:app seed-demo --password "choose-a-local-demo-password"` instead.
 5. Open the application in a browser.
 
 ### Demonstrate organization and registration management
@@ -431,4 +455,5 @@ For each significant change:
 | 2026-11-19 | Added fictional clinician-configured medication reminders, patient medication-event CRUD, assigned-clinician read-only event review, migration, route inventory, and boundary tests | Sections 1, 2, 3, 5, 6, and 7 | Cover the medication-scheduling requirement without adding prescriptions, dosage guidance, adherence inference, or external notifications |
 | 2026-11-19 | Added read-only derived patient and assigned-clinician reports with validated date filters, transparent counts, and recorded-value trends | Sections 1, 2, 3, 5, 6, and 7 | Cover the basic reports and progress-summary scope without persisting duplicate data or introducing clinical interpretation |
 | 2026-11-19 | Added organization-scoped organization, clinician-provisioning, patient-registration, patient-assignment, and read-only patient-profile workflows | Sections 1, 1a, 2, 4, 5, 6, and 7 | Make the fictional demonstration accounts and patient registers manageable while preserving organization boundaries and health-record privacy |
+| 2026-11-23 | Added the one-time first-administrator bootstrap form, empty-database link, server-side reuse protection, password validation, and PostgreSQL check-and-create locking | Sections 1, 1a, 1b, 4, 5, 6, and 7 | Let a fresh demonstration database establish its first administrator without turning the prototype into a public registration service |
 
