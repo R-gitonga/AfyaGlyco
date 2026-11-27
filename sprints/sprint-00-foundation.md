@@ -4,7 +4,7 @@
 
 Prepare the development environment and establish the initial project design for the academic capstone prototype.
 
-## Completed work
+## Completed work change this sprint
 
 - Created the project README and coding-agent instructions.
 - Established the capstone scope and prototype boundaries.
